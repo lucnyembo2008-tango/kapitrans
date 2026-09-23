@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="logokapitrans.png">
+    <title>KAPITRANS — Mon profil</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="admin-body">
+
+    <header class="main-header">
+        <div class="topbar-start">
+            <span class="menu-toggle" aria-hidden="true">☰</span>
+            <a href="index.html" class="topbar-link">Aperçu du site</a>
+            <a href="agent-history.html" class="topbar-link">Mes vérifications</a>
+        </div>
+        <div class="admin-info">
+            <span class="admin-badge">Agent</span>
+            <span class="admin-name">MUKENDI Paul</span>
+            <a href="login.html" class="btn-logout">Déconnexion</a>
+        </div>
+    </header>
+
+    <!-- ========== LAYOUT AGENT ========== -->
+    <div class="admin-layout">
+
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="logokapitrans.png" alt="Logo KapiTrans" class="sidebar-logo">
+                <span>KAPITRANS</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="agent-search.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg></span>
+                    Recherche véhicule
+                </a>
+                <a href="agent-history.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5zM8 9h8M8 13h8"/></svg></span>
+                    Mes vérifications
+                </a>
+                <a href="agent-profile.html" class="sidebar-link active">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 19c1.4-2.9 4.1-4.5 8-4.5S18.6 16.1 20 19"/></svg></span>
+                    Mon profil
+                </a>
+            </nav>
+        </aside>
+
+        <!-- ========== CONTENU PRINCIPAL ========== -->
+        <main class="main-content">
+
+            <div class="page-header">
+                <h1 class="page-title">Mon profil</h1>
+                <p class="page-subtitle">Informations personnelles et paramètres du compte</p>
+            </div>
+
+            <div class="profile-card animate-fade-in-up">
+
+                <!-- AVATAR ET NOM -->
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <span>MP</span>
+                    </div>
+                    <div class="profile-identity">
+                        <h2 class="profile-name">MUKENDI Paul</h2>
+                        <span class="profile-role">Agent de contrôle</span>
+                        <span class="status-badge status-active">Compte actif</span>
+                    </div>
+                </div>
+
+                <!-- INFORMATIONS -->
+                <div class="profile-section">
+                    <h3 class="profile-section-title">
+                        <span aria-hidden="true">•</span> Informations personnelles
+                    </h3>
+                    <div class="profile-info-grid">
+                        <div class="profile-info-item">
+                            <span class="profile-info-label">Nom</span>
+                            <span class="profile-info-value">MUKENDI</span>
+                        </div>
+                        <div class="profile-info-item">
+                            <span class="profile-info-label">Prénom</span>
+                            <span class="profile-info-value">Paul</span>
+                        </div>
+                        <div class="profile-info-item">
+                            <span class="profile-info-label">Email</span>
+                            <span class="profile-info-value">paul.mukendi@kapitrans.cd</span>
+                        </div>
+                        <div class="profile-info-item">
+                            <span class="profile-info-label">Téléphone</span>
+                            <span class="profile-info-value">+243 81 234 5678</span>
+                        </div>
+                        <div class="profile-info-item">
+                            <span class="profile-info-label">Date de naissance</span>
+                            <span class="profile-info-value">15/06/1990</span>
+                        </div>
+                        <div class="profile-info-item">
+                            <span class="profile-info-label">N° pièce d'identité</span>
+                            <span class="profile-info-value">1234567890</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INFORMATIONS PROFESSIONNELLES -->
+                <div class="profile-section">
+                    <h3 class="profile-section-title">
+                        <span aria-hidden="true">•</span> Informations professionnelles
+                    </h3>
+                    <div class="profile-info-grid">
+                        <div class="profile-info-item">
+                            <span class="profile-info-label">Rôle</span>
+                            <span class="profile-info-value">
+                                <span class="role-badge role-agent">Agent de contrôle</span>
+                            </span>
+                        </div>
+                        <div class="profile-info-item">
+                            <span class="profile-info-label">Zone d'affectation</span>
+                            <span class="profile-info-value">Boulevard Lumumba</span>
+                        </div>
+                        <div class="profile-info-item">
+                            <span class="profile-info-label">Date d'embauche</span>
+                            <span class="profile-info-value">01/03/2024</span>
+                        </div>
+                        <div class="profile-info-item">
+                            <span class="profile-info-label">Matricule interne</span>
+                            <span class="profile-info-value">AG-2024-012</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACCÈS ET PERMISSIONS -->
+                <div class="profile-section">
+                    <h3 class="profile-section-title">
+                        <span aria-hidden="true">•</span> Mes accès
+                    </h3>
+                    <div class="access-list-profile">
+                        <div class="access-profile-item">
+                            <span class="access-profile-icon">OK</span>
+                            <span>Recherche véhicule</span>
+                        </div>
+                        <div class="access-profile-item">
+                            <span class="access-profile-icon">OK</span>
+                            <span>Mes vérifications</span>
+                        </div>
+                        <div class="access-profile-item">
+                            <span class="access-profile-icon">OK</span>
+                            <span>Signaler un véhicule</span>
+                        </div>
+                        <div class="access-profile-item">
+                            <span class="access-profile-icon">OK</span>
+                            <span>Verbaliser</span>
+                        </div>
+                        <div class="access-profile-item access-profile-disabled">
+                            <span class="access-profile-icon">Non</span>
+                            <span>Gestion des utilisateurs</span>
+                        </div>
+                        <div class="access-profile-item access-profile-disabled">
+                            <span class="access-profile-icon">Non</span>
+                            <span>Gestion des véhicules</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STATISTIQUES -->
+                <div class="profile-section">
+                    <h3 class="profile-section-title">
+                        <span aria-hidden="true">•</span> Mes statistiques
+                    </h3>
+                    <div class="profile-stats-grid">
+                        <div class="profile-stat">
+                            <span class="profile-stat-value">247</span>
+                            <span class="profile-stat-label">Vérifications totales</span>
+                        </div>
+                        <div class="profile-stat">
+                            <span class="profile-stat-value profile-stat-green">198</span>
+                            <span class="profile-stat-label">Conformes</span>
+                        </div>
+                        <div class="profile-stat">
+                            <span class="profile-stat-value profile-stat-red">17</span>
+                            <span class="profile-stat-label">Signalés</span>
+                        </div>
+                        <div class="profile-stat">
+                            <span class="profile-stat-value">23</span>
+                            <span class="profile-stat-label">Aujourd'hui</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACTIONS -->
+                <div class="profile-actions">
+                    <button class="btn-secondary" type="button">Modifier mon profil</button>
+                    <button class="btn-secondary" type="button">Changer mon mot de passe</button>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="main-footer">
+        <div class="footer-content">
+            <p class="footer-copyright">
+                &copy; 2027 KAPITRANS. Tous droits réservés.
+            </p>
+        </div>
+    </footer>
+
+</body>
+</html>

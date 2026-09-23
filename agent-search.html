@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="logokapitrans.png">
+    <title>KAPITRANS — Recherche véhicule</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="admin-body">
+
+    <header class="main-header">
+        <div class="topbar-start">
+            <span class="menu-toggle" aria-hidden="true">☰</span>
+            <a href="index.html" class="topbar-link">Aperçu du site</a>
+            <a href="index.html#fonctionnalites" class="topbar-link">Documentation</a>
+        </div>
+        <div class="admin-info">
+            <span class="admin-badge">Agent</span>
+            <span class="admin-name">MUKENDI Paul</span>
+            <a href="login.html" class="btn-logout">Déconnexion</a>
+        </div>
+    </header>
+
+    <!-- ========== LAYOUT AGENT ========== -->
+    <div class="admin-layout">
+
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="logokapitrans.png" alt="Logo KapiTrans" class="sidebar-logo">
+                <span>KAPITRANS</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="agent-search.html" class="sidebar-link active">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg></span>
+                    Recherche véhicule
+                </a>
+                <a href="agent-history.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5zM8 9h8M8 13h8"/></svg></span>
+                    Mes vérifications
+                </a>
+                <a href="agent-profile.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 19c1.4-2.9 4.1-4.5 8-4.5S18.6 16.1 20 19"/></svg></span>
+                    Mon profil
+                </a>
+            </nav>
+        </aside>
+
+        <!-- ========== CONTENU PRINCIPAL ========== -->
+        <main class="main-content">
+
+            <div class="agent-search-container">
+
+                <!-- ============================================
+                     ÉTAT 1 : RECHERCHE
+                     ============================================ -->
+                <div id="state-search">
+                    <div class="agent-search-header">
+                        <h1 class="agent-search-title">🔍 Rechercher un véhicule</h1>
+                        <p class="agent-search-subtitle">
+                            Saisissez le matricule ou scannez le QR code du véhicule
+                        </p>
+                    </div>
+
+                    <form class="agent-search-form" id="vehicle-search-form">
+                        <div class="agent-search-box">
+                            <input 
+                                type="text" 
+                                id="vehicle-registration"
+                                name="registration"
+                                class="agent-search-input" 
+                                placeholder="Ex. KIN 1234 AB"
+                                autofocus
+                            >
+                            <button type="submit" class="btn-primary btn-search">
+                                Rechercher
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="agent-search-separator">
+                        <span>ou</span>
+                    </div>
+
+                    <button class="btn-scan" type="button">
+                        <span class="scan-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M7 3h3v2H7v3H5V5a2 2 0 0 1 2-2Zm10 0a2 2 0 0 1 2 2v3h-2V5h-3V3h3ZM5 14h2v3h3v2H7a2 2 0 0 1-2-2v-3Zm14 3h-3v2h3a2 2 0 0 0 2-2v-3h-2v3ZM7 8h10v8H7z"/></svg>
+                        </span>
+                        <span class="scan-text">Scanner un QR code</span>
+                    </button>
+
+                    <!-- DÉMO : LIENS VERS LES ÉTATS -->
+                    <div class="demo-links">
+                        <p class="demo-links-title">
+                            <span class="title-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2v6M12 16v6M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h6M16 12h6M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"/></svg></span>
+                            Démonstration :
+                        </p>
+                        <div class="demo-links-grid">
+                            <a href="#result-conforme" class="demo-link demo-link-green">Voir un véhicule conforme</a>
+                            <a href="#result-non-conforme" class="demo-link demo-link-red">Voir un véhicule non conforme</a>
+                        </div>
+                    </div>
+
+                    <!-- RECHERCHES RÉCENTES -->
+                    <div class="recent-searches">
+                        <h2 class="recent-title">
+                            <span class="title-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 7v5l3 3M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg></span>
+                            Recherches récentes
+                        </h2>
+                        <div class="recent-list">
+                            <a href="#result-non-conforme" class="recent-item">
+                                <div class="recent-item-left">
+                                    <span class="recent-matricule">KIN 5678 CD</span>
+                                    <span class="recent-time">Il y a 5 min</span>
+                                </div>
+                                <span class="status-badge status-non-conforme"><span class="status-mark"><svg viewBox="0 0 24 24"><path d="M6 12h12"/></svg></span>Non conforme</span>
+                            </a>
+                            <a href="#result-conforme" class="recent-item">
+                                <div class="recent-item-left">
+                                    <span class="recent-matricule">KIN 1234 AB</span>
+                                    <span class="recent-time">Il y a 15 min</span>
+                                </div>
+                                <span class="status-badge status-conforme"><span class="status-mark"><svg viewBox="0 0 24 24"><path d="M5 12.5 9.5 17 19 7.5"/></svg></span>Conforme</span>
+                            </a>
+                            <a href="agent-history.html" class="recent-item">
+                                <div class="recent-item-left">
+                                    <span class="recent-matricule">KIN 9012 EF</span>
+                                    <span class="recent-time">Il y a 1h</span>
+                                </div>
+                                <span class="status-badge status-surveiller"><span class="status-mark"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v5M12 16h.01"/></svg></span>À surveiller</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- STATISTIQUES DU JOUR -->
+                    <div class="agent-day-stats">
+                        <h2 class="recent-title">
+                            <span class="title-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 20V9M10 20V4M15 20v-7M20 20v-11"/></svg></span>
+                            Aujourd'hui
+                        </h2>
+                        <div class="agent-stats-grid">
+                            <div class="agent-stat">
+                                <span class="agent-stat-value">23</span>
+                                <span class="agent-stat-label">Véhicules vérifiés</span>
+                            </div>
+                            <div class="agent-stat">
+                                <span class="agent-stat-value agent-stat-green">19</span>
+                                <span class="agent-stat-label">Conformes</span>
+                            </div>
+                            <div class="agent-stat">
+                                <span class="agent-stat-value agent-stat-red">4</span>
+                                <span class="agent-stat-label">Signalés</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================
+                     ÉTAT 2 : RÉSULTAT CONFORME
+                     ============================================ -->
+                <div id="result-conforme" class="result-section">
+                    <div class="result-card">
+                        <div class="result-header result-header-conforme">
+                            <div class="result-vehicle-info">
+                                <h2 class="result-matricule">KIN 1234 AB</h2>
+                                <p class="result-vehicle-model">Toyota Hiace · Transport en commun</p>
+                            </div>
+                            <div class="result-status-badge result-status-conforme">
+                                <span class="status-mark"><svg viewBox="0 0 24 24"><path d="M5 12.5 9.5 17 19 7.5"/></svg></span>
+                                CONFORME
+                            </div>
+                        </div>
+
+                        <div class="result-message result-message-conforme">
+                            <span class="result-message-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5 9.5 17 19 7.5"/></svg></span>
+                            <div>
+                                <strong>Tous les documents sont valides.</strong>
+                                <p>Le véhicule peut circuler sans restriction.</p>
+                            </div>
+                        </div>
+
+                        <div class="result-documents">
+                            <h3 class="result-documents-title">Documents</h3>
+                            <div class="result-doc-list">
+                                <div class="result-doc-item">
+                                    <span class="result-doc-name"><span class="doc-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h8l5 5v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M15 3v5h5"/><path d="M8 12h8M8 16h8"/></svg></span>Carte grise</span>
+                                    <span class="result-doc-expiry">12/2027</span>
+                                    <span class="status-badge status-conforme"><span class="status-mark"><svg viewBox="0 0 24 24"><path d="M5 12.5 9.5 17 19 7.5"/></svg></span>Valide</span>
+                                </div>
+                                <div class="result-doc-item">
+                                    <span class="result-doc-name"><span class="doc-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3.5 20 7v6.5c0 4-2.8 7.8-8 10.5-5.2-2.7-8-6.5-8-10.5V7l8-3.5Z"/><path d="M9.5 12.2 11 13.7l3.5-4.2"/></svg></span>Assurance</span>
+                                    <span class="result-doc-expiry">10/2026</span>
+                                    <span class="status-badge status-conforme"><span class="status-mark"><svg viewBox="0 0 24 24"><path d="M5 12.5 9.5 17 19 7.5"/></svg></span>Valide</span>
+                                </div>
+                                <div class="result-doc-item">
+                                    <span class="result-doc-name"><span class="doc-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 18V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v12"/><path d="M9 10h6M9 14h6M9 18h4"/></svg></span>Visite technique</span>
+                                    <span class="result-doc-expiry">03/2027</span>
+                                    <span class="status-badge status-conforme"><span class="status-mark"><svg viewBox="0 0 24 24"><path d="M5 12.5 9.5 17 19 7.5"/></svg></span>Valide</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="result-info-grid">
+                            <div class="result-info-item">
+                                <span class="result-info-label">Propriétaire</span>
+                                <span class="result-info-value">KABILA Jean</span>
+                            </div>
+                            <div class="result-info-item">
+                                <span class="result-info-label">Conducteur</span>
+                                <span class="result-info-value">MUKENDI Paul</span>
+                            </div>
+                        </div>
+
+                        <div class="result-actions">
+                            <a href="#state-search" class="btn-secondary">← Nouvelle recherche</a>
+                            <button class="btn-primary" type="button">
+                                <span class="btn-inline-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5 9.5 17 19 7.5"/></svg></span>
+                                Laisser passer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================
+                     ÉTAT 3 : RÉSULTAT NON CONFORME
+                     ============================================ -->
+                <div id="result-non-conforme" class="result-section">
+                    <div class="result-card">
+                        <div class="result-header result-header-non-conforme">
+                            <div class="result-vehicle-info">
+                                <h2 class="result-matricule">KIN 5678 CD</h2>
+                                <p class="result-vehicle-model">Hyundai H1 · Transport en commun</p>
+                            </div>
+                            <div class="result-status-badge result-status-non-conforme">
+                                <span class="status-mark"><svg viewBox="0 0 24 24"><path d="M6 12h12"/></svg></span>
+                                NON CONFORME
+                            </div>
+                        </div>
+
+                        <div class="result-alerts">
+                            <div class="result-alert result-alert-red">
+                                <span class="status-mark"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v5M12 16h.01"/></svg></span>
+                                <span>Visite technique expirée depuis 03/2026</span>
+                            </div>
+                            <div class="result-alert result-alert-orange">
+                                <span class="status-mark"><svg viewBox="0 0 24 24"><path d="M12 3.5 20 17a1 1 0 0 1-.87 1.5H4.87A1 1 0 0 1 4 17l8-13.5Z"/><path d="M12 9v4M12 16.5h.01"/></svg></span>
+                                <span>Assurance expire dans 5 jours</span>
+                            </div>
+                        </div>
+
+                        <div class="result-message result-message-non-conforme">
+                            <span class="result-message-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3.5 21 18.5a1 1 0 0 1-.87 1.5H3.87A1 1 0 0 1 3 18.5L12 3.5Z"/><path d="M12 9v4M12 16.5h.01"/></svg></span>
+                            <div>
+                                <strong>Le véhicule ne peut pas circuler.</strong>
+                                <p>Des irrégularités ont été détectées.</p>
+                            </div>
+                        </div>
+
+                        <div class="result-documents">
+                            <h3 class="result-documents-title">Documents</h3>
+                            <div class="result-doc-list">
+                                <div class="result-doc-item">
+                                    <span class="result-doc-name"><span class="doc-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h8l5 5v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M15 3v5h5"/><path d="M8 12h8M8 16h8"/></svg></span>Carte grise</span>
+                                    <span class="result-doc-expiry">06/2028</span>
+                                    <span class="status-badge status-conforme"><span class="status-mark"><svg viewBox="0 0 24 24"><path d="M5 12.5 9.5 17 19 7.5"/></svg></span>Valide</span>
+                                </div>
+                                <div class="result-doc-item">
+                                    <span class="result-doc-name"><span class="doc-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3.5 20 7v6.5c0 4-2.8 7.8-8 10.5-5.2-2.7-8-6.5-8-10.5V7l8-3.5Z"/><path d="M9.5 12.2 11 13.7l3.5-4.2"/></svg></span>Assurance</span>
+                                    <span class="result-doc-expiry">10/2026</span>
+                                    <span class="status-badge status-surveiller"><span class="status-mark"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v5M12 16h.01"/></svg></span>Expire bientôt</span>
+                                </div>
+                                <div class="result-doc-item">
+                                    <span class="result-doc-name"><span class="doc-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 18V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v12"/><path d="M9 10h6M9 14h6M9 18h4"/></svg></span>Visite technique</span>
+                                    <span class="result-doc-expiry">03/2026</span>
+                                    <span class="status-badge status-non-conforme"><span class="status-mark"><svg viewBox="0 0 24 24"><path d="M6 12h12"/></svg></span>Expiré</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="result-info-grid">
+                            <div class="result-info-item">
+                                <span class="result-info-label">Propriétaire</span>
+                                <span class="result-info-value">MUKENDI Paul</span>
+                            </div>
+                            <div class="result-info-item">
+                                <span class="result-info-label">Conducteur</span>
+                                <span class="result-info-value">ILUNGA Marc</span>
+                            </div>
+                        </div>
+
+                        <div class="result-actions">
+                            <a href="#state-search" class="btn-secondary">← Nouvelle recherche</a>
+                            <button class="btn-primary btn-danger" type="button">
+                                <span class="btn-inline-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3.5 21 18.5a1 1 0 0 1-.87 1.5H3.87A1 1 0 0 1 3 18.5L12 3.5Z"/><path d="M12 9v4M12 16.5h.01"/></svg></span>
+                                Verbaliser
+                            </button>
+                            <button class="btn-secondary" type="button">
+                                <span class="btn-inline-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 16V7.5A1.5 1.5 0 0 1 6.5 6H18a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H7.5A1.5 1.5 0 0 1 6 17.5V16"/><path d="M8 10h8M8 14h5"/></svg></span>
+                                Signaler
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="main-footer">
+        <div class="footer-content">
+            <p class="footer-copyright">
+                &copy; 2027 KAPITRANS. Tous droits réservés.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const vehicleSearchForm = document.getElementById('vehicle-search-form');
+        const vehicleRegistration = document.getElementById('vehicle-registration');
+
+        vehicleSearchForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const registration = vehicleRegistration.value.trim().toUpperCase();
+
+            if (!registration) {
+                vehicleRegistration.focus();
+                return;
+            }
+
+            window.location.hash = registration.includes('5678')
+                ? 'result-non-conforme'
+                : 'result-conforme';
+        });
+    </script>
+
+</body>
+</html>

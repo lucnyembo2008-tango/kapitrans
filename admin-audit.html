@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="logokapitrans.png">
+    <title>KAPITRANS — Journal d'audit</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="admin-body">
+
+    <header class="main-header">
+        <div class="topbar-start">
+            <span class="menu-toggle" aria-hidden="true">☰</span>
+            <a href="index.html" class="topbar-link">Aperçu du site</a>
+            <a href="index.html#fonctionnalites" class="topbar-link">Documentation</a>
+        </div>
+        <div class="admin-info">
+            <span class="admin-badge">Admin</span>
+            <span class="admin-name">kapitrans controle</span>
+            <a href="login.html" class="btn-logout">Déconnexion</a>
+        </div>
+    </header>
+
+    <div class="admin-layout">
+
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="logokapitrans.png" alt="Logo KapiTrans" class="sidebar-logo">
+                <span>KAPITRANS</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="admin-dashboard.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 16v-4M12 16V8M16 16v-7M20 16v-4"/></svg></span>
+                    Tableau de bord
+                </a>
+                <a href="admin-users.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3.5 19c.5-3 2.4-4.5 5.5-4.5s5 1.5 5.5 4.5M14 15c3.5-1 6 .6 6.5 3.5"/></svg></span>
+                    Utilisateurs
+                </a>
+                <a href="admin-vehicles.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 16 1.5-6h11L19 16M4 16h16v3H4zM7 19v1M17 19v1M7 13h10"/></svg></span>
+                    Véhicules
+                </a>
+                <a href="admin-map.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18 3 20V6l6-2 6 2 6-2v14l-6 2-6-2Zm0-14v14m6-12v14"/></svg></span>
+                    Carte GPS
+                </a>
+                <a href="admin-documents.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6zM14 3v4h4M9 12h6M9 16h6"/></svg></span>
+                    Documents
+                </a>
+                <a href="admin-cessions.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 8h12l-3-3M20 16H8l3 3M16 8a6 6 0 0 1 4 5M8 16a6 6 0 0 1-4-5"/></svg></span>
+                    Cessions
+                </a>
+                <a href="admin-alerts.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></span>
+                    Alertes
+                </a>
+                <a href="admin-audit.html" class="sidebar-link active">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></span>
+                    Journal d'audit
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+
+            <div class="print-report-header">
+                <div class="print-report-brand">
+                    <img src="logokapitrans.png" alt="Logo KapiTrans">
+                    <div><strong>KAPITRANS</strong><span>Contrôle et gestion du transport</span></div>
+                </div>
+                <div class="print-report-meta"><span>RAPPORT D'AUDIT</span><small>Édité le <b class="print-date"></b></small></div>
+            </div>
+
+            <div class="page-header page-header-with-action">
+                <div>
+                    <h1 class="page-title">Journal d'audit</h1>
+                    <p class="page-subtitle">Historique de toutes les actions du système</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-secondary export-pdf" type="button" aria-label="Exporter le journal d'audit en PDF">Exporter PDF</button>
+                    <button class="btn-secondary" type="button">Exporter CSV</button>
+                </div>
+            </div>
+
+            <div class="stats-grid users-stats-grid">
+                <div class="stat-card animate-fade-in-up delay-1">
+                    <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></div>
+                    <div class="stat-number">12 847</div>
+                    <div class="stat-label">Total actions</div>
+                </div>
+                <div class="stat-card animate-fade-in-up delay-2">
+                    <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/></svg></div>
+                    <div class="stat-number">342</div>
+                    <div class="stat-label">Aujourd'hui</div>
+                </div>
+                <div class="stat-card animate-fade-in-up delay-3">
+                    <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"/></svg></div>
+                    <div class="stat-number">1 247</div>
+                    <div class="stat-label">Modifications</div>
+                </div>
+                <div class="stat-card animate-fade-in-up delay-4">
+                    <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+                    <div class="stat-number">23</div>
+                    <div class="stat-label">Suppressions</div>
+                </div>
+            </div>
+
+            <div class="search-bar">
+                <div class="search-field">
+                    <span class="search-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg></span>
+                    <input type="text" placeholder="Rechercher par utilisateur, action, détails..." class="search-input">
+                </div>
+                <select class="filter-select">
+                    <option value="">Tous les utilisateurs</option>
+                    <option value="kabila">KABILA Jean</option>
+                    <option value="mukendi">MUKENDI Paul</option>
+                    <option value="ilunga">ILUNGA Marc</option>
+                    <option value="kasongo">KASONGO Alice</option>
+                </select>
+                <select class="filter-select">
+                    <option value="">Toutes les actions</option>
+                    <option value="login">LOGIN</option>
+                    <option value="create">CREATE</option>
+                    <option value="update">UPDATE</option>
+                    <option value="delete">DELETE</option>
+                    <option value="view">VIEW</option>
+                </select>
+                <select class="filter-select">
+                    <option value="">Toutes les entités</option>
+                    <option value="user">USER</option>
+                    <option value="vehicle">VEHICLE</option>
+                    <option value="document">DOCUMENT</option>
+                    <option value="cession">CESSION</option>
+                    <option value="alert">ALERT</option>
+                </select>
+            </div>
+
+            <div class="table-container audit-table-wrap">
+                <table class="data-table audit-table">
+                    <thead>
+                        <tr>
+                            <th>Date / Heure</th>
+                            <th>Utilisateur</th>
+                            <th>Action</th>
+                            <th>Entité</th>
+                            <th>Détails</th>
+                            <th>Adresse IP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="audit-date">21/09/2026 14:32:15</td>
+                            <td><strong>KABILA Jean</strong></td>
+                            <td><span class="audit-action action-create">CREATE</span></td>
+                            <td><span class="audit-entity">VEHICLE</span></td>
+                            <td>Création du véhicule KIN 1234 AB</td>
+                            <td class="audit-ip">192.168.1.45</td>
+                        </tr>
+                        <tr>
+                            <td class="audit-date">21/09/2026 14:30:42</td>
+                            <td><strong>MUKENDI Paul</strong></td>
+                            <td><span class="audit-action action-login">LOGIN</span></td>
+                            <td><span class="audit-entity">USER</span></td>
+                            <td>Connexion réussie</td>
+                            <td class="audit-ip">192.168.1.78</td>
+                        </tr>
+                        <tr>
+                            <td class="audit-date">21/09/2026 14:25:08</td>
+                            <td><strong>MUKENDI Paul</strong></td>
+                            <td><span class="audit-action action-view">VIEW</span></td>
+                            <td><span class="audit-entity">VEHICLE</span></td>
+                            <td>Consultation du véhicule KIN 5678 CD</td>
+                            <td class="audit-ip">192.168.1.78</td>
+                        </tr>
+                        <tr>
+                            <td class="audit-date">21/09/2026 14:20:33</td>
+                            <td><strong>ILUNGA Marc</strong></td>
+                            <td><span class="audit-action action-update">UPDATE</span></td>
+                            <td><span class="audit-entity">DOCUMENT</span></td>
+                            <td>Modification assurance KIN 9012 EF</td>
+                            <td class="audit-ip">192.168.1.92</td>
+                        </tr>
+                        <tr>
+                            <td class="audit-date">21/09/2026 14:15:21</td>
+                            <td><strong>KABILA Jean</strong></td>
+                            <td><span class="audit-action action-create">CREATE</span></td>
+                            <td><span class="audit-entity">USER</span></td>
+                            <td>Création utilisateur paul.mukendi@kapitrans.cd</td>
+                            <td class="audit-ip">192.168.1.45</td>
+                        </tr>
+                        <tr>
+                            <td class="audit-date">21/09/2026 14:10:05</td>
+                            <td><strong>KASONGO Alice</strong></td>
+                            <td><span class="audit-action action-create">CREATE</span></td>
+                            <td><span class="audit-entity">ALERT</span></td>
+                            <td>Signalement véhicule KIN 5678 CD</td>
+                            <td class="audit-ip">192.168.1.103</td>
+                        </tr>
+                        <tr>
+                            <td class="audit-date">21/09/2026 14:05:47</td>
+                            <td><strong>KABILA Jean</strong></td>
+                            <td><span class="audit-action action-delete">DELETE</span></td>
+                            <td><span class="audit-entity">DOCUMENT</span></td>
+                            <td>Suppression ancienne assurance</td>
+                            <td class="audit-ip">192.168.1.45</td>
+                        </tr>
+                        <tr>
+                            <td class="audit-date">21/09/2026 14:00:12</td>
+                            <td><strong>MUKENDI Paul</strong></td>
+                            <td><span class="audit-action action-logout">LOGOUT</span></td>
+                            <td><span class="audit-entity">USER</span></td>
+                            <td>Déconnexion</td>
+                            <td class="audit-ip">192.168.1.78</td>
+                        </tr>
+                        <tr>
+                            <td class="audit-date">21/09/2026 13:55:33</td>
+                            <td><strong>KABILA Jean</strong></td>
+                            <td><span class="audit-action action-update">UPDATE</span></td>
+                            <td><span class="audit-entity">USER</span></td>
+                            <td>Modification droits de MUKENDI Paul</td>
+                            <td class="audit-ip">192.168.1.45</td>
+                        </tr>
+                        <tr>
+                            <td class="audit-date">21/09/2026 13:50:18</td>
+                            <td><strong>ILUNGA Marc</strong></td>
+                            <td><span class="audit-action action-view">VIEW</span></td>
+                            <td><span class="audit-entity">VEHICLE</span></td>
+                            <td>Consultation du véhicule KIN 7890 IJ</td>
+                            <td class="audit-ip">192.168.1.92</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination">
+                <button class="page-btn" disabled>← Précédent</button>
+                <span class="page-info">Page 1 sur 1 285</span>
+                <button class="page-btn">Suivant →</button>
+            </div>
+
+        </main>
+    </div>
+
+    <footer class="main-footer">
+        <div class="footer-content">
+            <p class="footer-copyright">&copy; 2027 KAPITRANS. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+</body>
+<script>
+    document.querySelector('.print-date').textContent = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long' }).format(new Date());
+    document.querySelector('.export-pdf').addEventListener('click', function() {
+        window.print();
+    });
+</script>
+</html>

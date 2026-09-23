@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="logokapitrans.png">
+    <title>KAPITRANS — Ajouter un document</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="register-body">
+    <div class="register-shell">
+        <aside class="register-brand">
+            <div class="brand-wave wave-one"></div>
+            <div class="brand-wave wave-two"></div>
+            <div class="brand-content">
+                <div class="brand-logo">
+                    <img src="logokapitrans.png" alt="Logo KapiTrans">
+                    <span>KAPITRANS</span>
+                </div>
+                <h1>Ajouter un document</h1>
+                <p>Enregistrez un document juridique ou technique et associez-le rapidement à un véhicule enregistré dans le système.</p>
+                <ul class="brand-list">
+                    <li>Vérification rapide</li>
+                    <li>Suivi d'expiration</li>
+                    <li>Centralisation sécurisée</li>
+                </ul>
+            </div>
+        </aside>
+
+        <section class="register-panel">
+            <div class="panel-topbar">
+                <span class="eyebrow">Documents</span>
+                <a href="admin-documents.html" class="back-link">← Retour</a>
+            </div>
+
+            <div class="panel-header">
+                <h2>Fiche document</h2>
+                <p>Renseignez les informations relatives au document à enregistrer.</p>
+            </div>
+
+            <form id="create-document-form" class="register-form vehicle-form">
+                <div class="vehicle-section-heading">
+                    <span class="section-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 16 1.5-6h11L19 16M4 16h16v3H4zM7 19v1M17 19v1M7 13h10"/></svg></span>
+                    <span>Véhicule concerné</span>
+                </div>
+                <div class="form-grid">
+                    <label class="field"><span>Matricule du véhicule *</span><input type="text" name="vehicule-matricule" placeholder="Ex. KIN 1234 AB" required></label>
+                    <label class="field"><span>Modèle</span><input type="text" name="vehicule-modele" placeholder="Ex. Toyota Hiace" disabled></label>
+                    <label class="field field-full"><span>Propriétaire / gestionnaire</span><input type="text" name="vehicule-proprietaire" placeholder="Ex. KABILA Jean"></label>
+                </div>
+
+                <div class="vehicle-section-heading">
+                    <span class="section-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6zM14 3v4h4M9 12h6M9 16h6"/></svg></span>
+                    <span>Type et identification</span>
+                </div>
+                <div class="form-grid">
+                    <label class="field"><span>Type de document *</span>
+                        <select name="type-document" required>
+                            <option value="">Sélectionner</option>
+                            <option value="carte-grise">Carte grise</option>
+                            <option value="assurance">Assurance</option>
+                            <option value="visite-technique">Visite technique</option>
+                            <option value="permis">Permis de conduire</option>
+                            <option value="vignette">Vignette</option>
+                        </select>
+                    </label>
+                    <label class="field"><span>Organisme émetteur</span><input type="text" name="organisme" placeholder="Ex. DGI / Assurance / Mairie"></label>
+                    <label class="field"><span>Numéro du document *</span><input type="text" name="numero-document" placeholder="Ex. CG-2020-123456" required></label>
+                    <label class="field"><span>Statut</span><input type="text" name="statut" placeholder="Valide" disabled></label>
+                    <label class="field"><span>Date d'émission *</span><input type="date" name="date-emission" required></label>
+                    <label class="field"><span>Date d'expiration *</span><input type="date" name="date-expiration" required></label>
+                </div>
+
+                <div class="vehicle-section-heading">
+                    <span class="section-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 16V4h10v12M4 18h16M8 8h8M8 12h8"/></svg></span>
+                    <span>Pièce jointe</span>
+                </div>
+                <div class="form-grid">
+                    <label class="field field-full">
+                        <span>Fichier document</span>
+                        <input type="file" name="document-file" accept=".pdf,.jpg,.jpeg,.png" aria-label="Télécharger un document">
+                    </label>
+                </div>
+
+                <div class="options-box">
+                    <label class="check-row">
+                        <input type="checkbox" checked>
+                        <span>Envoyer une notification d'expiration</span>
+                    </label>
+                    <label class="check-row">
+                        <input type="checkbox" checked>
+                        <span>Archiver le document dans le registre</span>
+                    </label>
+                </div>
+
+                <div class="form-actions">
+                    <a href="admin-documents.html" class="btn-secondary">Annuler</a>
+                    <button type="submit" class="btn-primary">Enregistrer le document</button>
+                </div>
+            </form>
+        </section>
+    </div>
+</body>
+</html>

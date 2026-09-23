@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="logokapitrans.png">
+    <title>KAPITRANS — Déclarer une cession</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="register-body">
+    <div class="register-shell">
+        <aside class="register-brand">
+            <div class="brand-wave wave-one"></div>
+            <div class="brand-wave wave-two"></div>
+            <div class="brand-content">
+                <div class="brand-logo">
+                    <img src="logokapitrans.png" alt="Logo KapiTrans">
+                    <span>KAPITRANS</span>
+                </div>
+                <h1>Déclarer une cession</h1>
+                <p>Enregistrez le transfert de propriété d’un véhicule avec toutes les informations nécessaires et le contexte légal associé.</p>
+                <ul class="brand-list">
+                    <li>Historique sécurisé</li>
+                    <li>Validation rapide</li>
+                    <li>Suivi de propriété</li>
+                </ul>
+            </div>
+        </aside>
+
+        <section class="register-panel">
+            <div class="panel-topbar">
+                <span class="eyebrow">Cessions</span>
+                <a href="admin-cessions.html" class="back-link">← Retour</a>
+            </div>
+
+            <div class="panel-header">
+                <h2>Fiche de cession</h2>
+                <p>Complétez les informations relatives au véhicule, au cédant et au cessionnaire.</p>
+            </div>
+
+            <form id="create-cession-form" class="register-form vehicle-form">
+                <div class="vehicle-section-heading">
+                    <span class="section-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 16 1.5-6h11L19 16M4 16h16v3H4zM7 19v1M17 19v1M7 13h10"/></svg></span>
+                    <span>Véhicule concerné</span>
+                </div>
+                <div class="form-grid">
+                    <label class="field"><span>Matricule du véhicule *</span><input type="text" name="vehicule-matricule" placeholder="Ex. KIN 1234 AB" required></label>
+                    <label class="field"><span>Modèle</span><input type="text" name="vehicule-modele" placeholder="Ex. Toyota Hiace" disabled></label>
+                    <label class="field"><span>Catégorie</span><input type="text" name="vehicule-categorie" placeholder="Ex. Transport en commun"></label>
+                    <label class="field"><span>Motif du transfert</span><input type="text" name="motif" placeholder="Ex. Vente / Donation / autre"></label>
+                </div>
+
+                <div class="vehicle-section-heading">
+                    <span class="section-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.5-3 2.4-4.5 5.5-4.5s5 1.5 5.5 4.5M15 6a2.5 2.5 0 1 1 0 5M15 14c3 .1 4.8 1.8 5.3 4.5"/></svg></span>
+                    <span>Ancien propriétaire</span>
+                </div>
+                <div class="form-grid">
+                    <label class="field"><span>Nom complet</span><input type="text" name="ancien-nom" placeholder="Ex. KABILA Jean"></label>
+                    <label class="field"><span>Téléphone</span><input type="tel" name="ancien-telephone" placeholder="Ex. +243 81 234 5678"></label>
+                    <label class="field"><span>Date d’acquisition</span><input type="date" name="ancien-date"></label>
+                    <label class="field"><span>Type de cession</span><select name="type-cession"><option value="">Sélectionner</option><option>Vente</option><option>Donation</option><option>Transfert interne</option></select></label>
+                </div>
+
+                <div class="vehicle-section-heading">
+                    <span class="section-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3.5 19c.5-3 2.4-4.5 5.5-4.5s5 1.5 5.5 4.5M14 15c3.5-1 6 .6 6.5 3.5"/></svg></span>
+                    <span>Nouveau propriétaire</span>
+                </div>
+                <div class="form-grid">
+                    <label class="field"><span>Nom *</span><input type="text" name="nouveau-nom" placeholder="Ex. MUKENDI" required></label>
+                    <label class="field"><span>Prénom *</span><input type="text" name="nouveau-prenom" placeholder="Ex. Paul" required></label>
+                    <label class="field"><span>Téléphone *</span><input type="tel" name="nouveau-telephone" placeholder="Ex. +243 82 345 6789" required></label>
+                    <label class="field"><span>Email</span><input type="email" name="nouveau-email" placeholder="Ex. paul.mukendi@email.cd"></label>
+                    <label class="field"><span>N° pièce d’identité</span><input type="text" name="nouveau-piece" placeholder="Ex. 1234567890"></label>
+                    <label class="field"><span>Adresse</span><input type="text" name="nouveau-adresse" placeholder="Ex. Gombe, Kinshasa"></label>
+                </div>
+
+                <div class="vehicle-section-heading">
+                    <span class="section-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6zM14 3v4h4M9 12h6M9 16h6"/></svg></span>
+                    <span>Détails de la cession</span>
+                </div>
+                <div class="form-grid">
+                    <label class="field"><span>Date de cession *</span><input type="date" name="date-cession" required></label>
+                    <label class="field"><span>Montant de cession (FC)</span><input type="number" name="prix-cession" placeholder="Ex. 15000000" min="0"></label>
+                    <label class="field field-full"><span>Observations</span><textarea name="observations" rows="3" placeholder="Notes ou remarques sur la cession..."></textarea></label>
+                </div>
+
+                <div class="warning-box">
+                    <span class="warning-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M12 3.5 21 18.5a1 1 0 0 1-.87 1.5H3.87A1 1 0 0 1 3 18.5L12 3.5Z"/><path d="M12 9v4M12 16.5h.01"/></svg>
+                    </span>
+                    <div class="warning-content">
+                        <strong>Important</strong>
+                        <p>La cession doit être validée pour notifier le transfert de propriété et mettre à jour l’historique du véhicule.</p>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="admin-cessions.html" class="btn-secondary">Annuler</a>
+                    <button type="button" class="btn-secondary">Mettre en attente</button>
+                    <button type="submit" class="btn-primary">Valider la cession</button>
+                </div>
+            </form>
+        </section>
+    </div>
+</body>
+</html>

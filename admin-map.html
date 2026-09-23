@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="logokapitrans.png">
+    <title>KAPITRANS — Carte des véhicules</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body class="admin-body">
+
+    <header class="main-header">
+        <div class="topbar-start">
+            <span class="menu-toggle" aria-hidden="true">☰</span>
+            <a href="index.html" class="topbar-link">Aperçu du site</a>
+            <a href="index.html#fonctionnalites" class="topbar-link">Documentation</a>
+        </div>
+        <div class="admin-info">
+            <span class="admin-badge">Admin</span>
+            <span class="admin-name">kapitrans controle</span>
+            <a href="login.html" class="btn-logout">Déconnexion</a>
+        </div>
+    </header>
+
+    <div class="admin-layout">
+
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="logokapitrans.png" alt="Logo KapiTrans" class="sidebar-logo">
+                <span>KAPITRANS</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="admin-dashboard.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 16v-4M12 16V8M16 16v-7M20 16v-4"/></svg></span>
+                    Tableau de bord
+                </a>
+                <a href="admin-users.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3.5 19c.5-3 2.4-4.5 5.5-4.5s5 1.5 5.5 4.5M14 15c3.5-1 6 .6 6.5 3.5"/></svg></span>
+                    Utilisateurs
+                </a>
+                <a href="admin-vehicles.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 16 1.5-6h11L19 16M4 16h16v3H4zM7 19v1M17 19v1M7 13h10"/></svg></span>
+                    Véhicules
+                </a>
+                <a href="admin-map.html" class="sidebar-link active">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18 3 20V6l6-2 6 2 6-2v14l-6 2-6-2Zm0-14v14m6-12v14"/></svg></span>
+                    MAP GPS
+                </a>
+                <a href="admin-documents.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6zM14 3v4h4M9 12h6M9 16h6"/></svg></span>
+                    Documents
+                </a>
+                <a href="admin-cessions.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 8h12l-3-3M20 16H8l3 3M16 8a6 6 0 0 1 4 5M8 16a6 6 0 0 1-4-5"/></svg></span>
+                    Cessions
+                </a>
+                <a href="admin-alerts.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></span>
+                    Alertes
+                </a>
+                <a href="admin-audit.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></span>
+                    Journal d'audit
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+
+            <div class="page-header page-header-with-action">
+                <div>
+                    <h1 class="page-title">Carte des véhicules</h1>
+                    <p class="page-subtitle">Suivi GPS en temps réel du parc automobile de Kinshasa</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-secondary" id="btn-refresh" type="button">Actualiser</button>
+                    <button class="btn-secondary" id="btn-center" type="button">Centrer</button>
+                </div>
+            </div>
+
+            <div class="stats-grid users-stats-grid">
+                <div class="stat-card animate-fade-in-up delay-1">
+                    <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 16 1.5-6h11L19 16M4 16h16v3H4zM7 19v1M17 19v1M7 13h10"/></svg></div>
+                    <div class="stat-number">6</div>
+                    <div class="stat-label">Véhicules suivis</div>
+                </div>
+                <div class="stat-card animate-fade-in-up delay-2">
+                    <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5 10 17l9-10"/></svg></div>
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Conformes</div>
+                </div>
+                <div class="stat-card animate-fade-in-up delay-3">
+                    <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v5M12 16h.01"/></svg></div>
+                    <div class="stat-number">2</div>
+                    <div class="stat-label">À surveiller</div>
+                </div>
+                <div class="stat-card animate-fade-in-up delay-4">
+                    <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+                    <div class="stat-number">1</div>
+                    <div class="stat-label">Non conforme</div>
+                </div>
+            </div>
+
+            <div class="map-legend">
+                <div class="legend-item">
+                    <span class="legend-dot legend-green"></span>
+                    <span>Conforme</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot legend-orange"></span>
+                    <span>À surveiller</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot legend-red"></span>
+                    <span>Non conforme</span>
+                </div>
+            </div>
+
+            <div class="map-layout">
+                <div class="map-container">
+                    <div id="kapitrans-map"></div>
+                </div>
+
+                <aside class="map-sidebar">
+                    <div class="map-sidebar-header">
+                        <h3>Véhicules sur la carte</h3>
+                        <span class="map-count" id="vehicle-count">6</span>
+                    </div>
+
+                    <input type="text" class="search-input map-search" id="map-search-input" placeholder="Rechercher un matricule...">
+
+                    <div class="map-filters">
+                        <button class="filter-btn active" data-filter="all" type="button">Tous</button>
+                        <button class="filter-btn" data-filter="conforme" type="button">Conforme</button>
+                        <button class="filter-btn" data-filter="surveiller" type="button">À surveiller</button>
+                        <button class="filter-btn" data-filter="non-conforme" type="button">Non conforme</button>
+                    </div>
+
+                    <div class="map-vehicle-list" id="vehicle-list">
+                        <div class="map-vehicle-item" data-status="conforme" data-matricule="KIN 1234 AB">
+                            <div class="map-vehicle-header">
+                                <span class="matricule">KIN 1234 AB</span>
+                                <span class="status-badge status-conforme">Conforme</span>
+                            </div>
+                            <div class="map-vehicle-info">
+                                <span>Toyota Hiace</span>
+                                <span class="map-vehicle-location">Boulevard Lumumba</span>
+                            </div>
+                        </div>
+
+                        <div class="map-vehicle-item" data-status="non-conforme" data-matricule="KIN 5678 CD">
+                            <div class="map-vehicle-header">
+                                <span class="matricule">KIN 5678 CD</span>
+                                <span class="status-badge status-non-conforme">Non conforme</span>
+                            </div>
+                            <div class="map-vehicle-info">
+                                <span>Hyundai H1</span>
+                                <span class="map-vehicle-location">Avenue Kasa-Vubu</span>
+                            </div>
+                        </div>
+
+                        <div class="map-vehicle-item" data-status="surveiller" data-matricule="KIN 9012 EF">
+                            <div class="map-vehicle-header">
+                                <span class="matricule">KIN 9012 EF</span>
+                                <span class="status-badge status-surveiller">À surveiller</span>
+                            </div>
+                            <div class="map-vehicle-info">
+                                <span>Mercedes 207</span>
+                                <span class="map-vehicle-location">Gombe</span>
+                            </div>
+                        </div>
+
+                        <div class="map-vehicle-item" data-status="conforme" data-matricule="KIN 3456 GH">
+                            <div class="map-vehicle-header">
+                                <span class="matricule">KIN 3456 GH</span>
+                                <span class="status-badge status-conforme">Conforme</span>
+                            </div>
+                            <div class="map-vehicle-info">
+                                <span>Toyota Corolla</span>
+                                <span class="map-vehicle-location">Limete</span>
+                            </div>
+                        </div>
+
+                        <div class="map-vehicle-item" data-status="surveiller" data-matricule="KIN 7890 IJ">
+                            <div class="map-vehicle-header">
+                                <span class="matricule">KIN 7890 IJ</span>
+                                <span class="status-badge status-surveiller">À surveiller</span>
+                            </div>
+                            <div class="map-vehicle-info">
+                                <span>Nissan Urvan</span>
+                                <span class="map-vehicle-location">Ngaliema</span>
+                            </div>
+                        </div>
+
+                        <div class="map-vehicle-item" data-status="conforme" data-matricule="KIN 2468 KL">
+                            <div class="map-vehicle-header">
+                                <span class="matricule">KIN 2468 KL</span>
+                                <span class="status-badge status-conforme">Conforme</span>
+                            </div>
+                            <div class="map-vehicle-info">
+                                <span>Toyota Land Cruiser</span>
+                                <span class="map-vehicle-location">Gombe</span>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+
+        </main>
+    </div>
+
+    <footer class="main-footer">
+        <div class="footer-content">
+            <p class="footer-copyright">&copy; 2027 KAPITRANS. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <!-- ========== SCRIPTS ========== -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // ============================================================
+        // INITIALISATION DE LA CARTE
+        // ============================================================
+
+        const KINSHASA_CENTER = [-4.325, 15.322];
+        const INITIAL_ZOOM = 12;
+
+        const map = L.map('kapitrans-map').setView(KINSHASA_CENTER, INITIAL_ZOOM);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap &copy; CARTO',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+
+        // ============================================================
+        // DONNÉES DES VÉHICULES
+        // ============================================================
+
+        const vehicles = [
+            {
+                matricule: 'KIN 1234 AB',
+                marque: 'Toyota Hiace',
+                proprietaire: 'KABILA Jean',
+                statut: 'conforme',
+                lat: -4.3250,
+                lng: 15.3220,
+                zone: 'Boulevard Lumumba'
+            },
+            {
+                matricule: 'KIN 5678 CD',
+                marque: 'Hyundai H1',
+                proprietaire: 'MUKENDI Paul',
+                statut: 'non-conforme',
+                lat: -4.3300,
+                lng: 15.3100,
+                zone: 'Avenue Kasa-Vubu'
+            },
+            {
+                matricule: 'KIN 9012 EF',
+                marque: 'Mercedes 207',
+                proprietaire: 'ILUNGA Marc',
+                statut: 'surveiller',
+                lat: -4.3180,
+                lng: 15.3050,
+                zone: 'Gombe'
+            },
+            {
+                matricule: 'KIN 3456 GH',
+                marque: 'Toyota Corolla',
+                proprietaire: 'KASONGO Alice',
+                statut: 'conforme',
+                lat: -4.3400,
+                lng: 15.3300,
+                zone: 'Limete'
+            },
+            {
+                matricule: 'KIN 7890 IJ',
+                marque: 'Nissan Urvan',
+                proprietaire: 'TSHIMANGA Bob',
+                statut: 'surveiller',
+                lat: -4.3120,
+                lng: 15.2900,
+                zone: 'Ngaliema'
+            },
+            {
+                matricule: 'KIN 2468 KL',
+                marque: 'Toyota Land Cruiser',
+                proprietaire: 'KABILA Jean',
+                statut: 'conforme',
+                lat: -4.3350,
+                lng: 15.3150,
+                zone: 'Gombe'
+            }
+        ];
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const targetMatricule = urlParams.get('matricule');
+        const targetVehicle = targetMatricule ? vehicles.find(function(vehicle) {
+            return vehicle.matricule.toLowerCase() === targetMatricule.toLowerCase();
+        }) : null;
+
+        // ============================================================
+        // COULEURS ET LABELS
+        // ============================================================
+
+        const statusColors = {
+            'conforme': '#86efac',
+            'surveiller': '#fbbf24',
+            'non-conforme': '#fca5a5'
+        };
+
+        const statusLabels = {
+            'conforme': 'Conforme',
+            'surveiller': 'À surveiller',
+            'non-conforme': 'Non conforme'
+        };
+
+        // ============================================================
+        // MARQUEURS
+        // ============================================================
+
+        const markers = {};
+
+        vehicles.forEach(function(vehicle) {
+            const color = statusColors[vehicle.statut];
+
+            const markerIcon = L.divIcon({
+                className: 'custom-marker',
+                html: `
+                    <div class="marker-pin" style="background-color: ${color};">
+                        <span class="marker-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M5 15.5 7 7h10l2 8.5M6.5 15.5h11M9 19h6M8 11h8M10 7V4.5h4V7"/></svg>
+                        </span>
+                    </div>
+                `,
+                iconSize: [40, 40],
+                iconAnchor: [20, 40],
+                popupAnchor: [0, -40]
+            });
+
+            const marker = L.marker([vehicle.lat, vehicle.lng], {
+                icon: markerIcon
+            }).addTo(map);
+
+            const popupContent = `
+                <div class="map-popup">
+                    <div class="map-popup-header" style="border-bottom-color: ${color};">
+                        <strong class="map-popup-matricule">${vehicle.matricule}</strong>
+                        <span class="map-popup-status" style="color: ${color};">
+                            ${statusLabels[vehicle.statut]}
+                        </span>
+                    </div>
+                    <div class="map-popup-body">
+                        <p><strong>Véhicule :</strong> ${vehicle.marque}</p>
+                        <p><strong>Propriétaire :</strong> ${vehicle.proprietaire}</p>
+                        <p><strong>Zone :</strong> ${vehicle.zone}</p>
+                        <p><strong>Position :</strong> ${vehicle.lat.toFixed(4)}, ${vehicle.lng.toFixed(4)}</p>
+                    </div>
+                    <div class="map-popup-actions">
+                        <a href="admin-vehicles.html" class="map-popup-btn">
+                            👁️ Voir la fiche
+                        </a>
+                    </div>
+                </div>
+            `;
+
+            marker.bindPopup(popupContent, {
+                maxWidth: 300,
+                className: 'kapitrans-popup'
+            });
+
+            markers[vehicle.matricule] = marker;
+        });
+
+        // ============================================================
+        // CLIC SUR UN ÉLÉMENT DE LA LISTE → CENTRER LA CARTE
+        // ============================================================
+
+        document.querySelectorAll('.map-vehicle-item').forEach(function(item) {
+            item.addEventListener('click', function() {
+                const matricule = this.dataset.matricule;
+                const vehicle = vehicles.find(v => v.matricule === matricule);
+
+                if (vehicle && markers[matricule]) {
+                    map.setView([vehicle.lat, vehicle.lng], 15);
+                    markers[matricule].openPopup();
+
+                    document.querySelectorAll('.map-vehicle-item').forEach(function(el) {
+                        el.classList.remove('highlighted');
+                    });
+                    item.classList.add('highlighted');
+                }
+            });
+        });
+
+        if (targetVehicle) {
+            const targetListItem = document.querySelector('.map-vehicle-item[data-matricule="' + targetVehicle.matricule + '"]');
+            if (targetListItem) {
+                targetListItem.classList.add('highlighted');
+                targetListItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+
+            const allFilterButton = document.querySelector('.filter-btn[data-filter="all"]');
+            if (allFilterButton) {
+                document.querySelectorAll('.filter-btn').forEach(function(btn) {
+                    btn.classList.remove('active');
+                });
+                allFilterButton.classList.add('active');
+                document.querySelectorAll('.map-vehicle-item').forEach(function(item) {
+                    item.style.display = 'block';
+                });
+                document.getElementById('vehicle-count').textContent = vehicles.length;
+            }
+
+            map.setView([targetVehicle.lat, targetVehicle.lng], 15);
+            setTimeout(function() {
+                if (markers[targetVehicle.matricule]) {
+                    markers[targetVehicle.matricule].openPopup();
+                }
+            }, 350);
+        }
+
+        // ============================================================
+        // FILTRES
+        // ============================================================
+
+        document.querySelectorAll('.filter-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                const filter = this.dataset.filter;
+
+                document.querySelectorAll('.map-vehicle-item').forEach(function(item) {
+                    if (filter === 'all' || item.dataset.status === filter) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                // Mettre à jour le compteur
+                const visibleCount = document.querySelectorAll('.map-vehicle-item:not([style*="display: none"])').length;
+                document.getElementById('vehicle-count').textContent = visibleCount;
+            });
+        });
+
+        // ============================================================
+        // RECHERCHE
+        // ============================================================
+
+        document.getElementById('map-search-input').addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+
+            document.querySelectorAll('.map-vehicle-item').forEach(function(item) {
+                const matricule = item.dataset.matricule.toLowerCase();
+                if (matricule.includes(query)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            const visibleCount = document.querySelectorAll('.map-vehicle-item:not([style*="display: none"])').length;
+            document.getElementById('vehicle-count').textContent = visibleCount;
+        });
+
+        // ============================================================
+        // BOUTONS
+        // ============================================================
+
+        document.getElementById('btn-center').addEventListener('click', function() {
+            map.setView(KINSHASA_CENTER, INITIAL_ZOOM);
+        });
+
+        document.getElementById('btn-refresh').addEventListener('click', function() {
+            map.setView(KINSHASA_CENTER, INITIAL_ZOOM);
+            document.querySelectorAll('.map-vehicle-item').forEach(item => item.style.display = 'block');
+            document.getElementById('vehicle-count').textContent = vehicles.length;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.filter-btn[data-filter="all"]').classList.add('active');
+        });
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="logokapitrans.png">
+    <title>KAPITRANS — Mes vérifications</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="admin-body">
+
+    <header class="main-header">
+        <div class="topbar-start">
+            <span class="menu-toggle" aria-hidden="true">☰</span>
+            <a href="index.html" class="topbar-link">Aperçu du site</a>
+            <a href="index.html#fonctionnalites" class="topbar-link">Documentation</a>
+        </div>
+        <div class="admin-info">
+            <span class="admin-badge">Agent</span>
+            <span class="admin-name">MUKENDI Paul</span>
+            <a href="login.html" class="btn-logout">Déconnexion</a>
+        </div>
+    </header>
+
+    <div class="admin-layout">
+
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="logokapitrans.png" alt="Logo KapiTrans" class="sidebar-logo">
+                <span>KAPITRANS</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="agent-search.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg></span>
+                    Recherche véhicule
+                </a>
+                <a href="agent-history.html" class="sidebar-link active">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5zM8 9h8M8 13h8"/></svg></span>
+                    Mes vérifications
+                </a>
+                <a href="agent-profile.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 19c1.4-2.9 4.1-4.5 8-4.5S18.6 16.1 20 19"/></svg></span>
+                    Mon profil
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+
+            <div class="print-report-header">
+                <div class="print-report-brand">
+                    <img src="logokapitrans.png" alt="Logo KapiTrans">
+                    <div><strong>KAPITRANS</strong><span>Contrôle et gestion du transport</span></div>
+                </div>
+                <div class="print-report-meta"><span>RAPPORT DES VÉRIFICATIONS</span><small>Édité le <b class="print-date"></b></small></div>
+            </div>
+
+            <div class="page-header page-header-with-action">
+                <div>
+                    <h1 class="page-title">Mes vérifications</h1>
+                    <p class="page-subtitle">Historique de mes contrôles routiers</p>
+                </div>
+                <div class="header-actions">
+                    <button id="export-pdf" class="btn-secondary export-pdf" type="button" aria-label="Exporter les vérifications en PDF">Exporter PDF</button>
+                    <a href="agent-search.html" class="btn-primary">Nouvelle recherche</a>
+                </div>
+            </div>
+
+            <div class="stats-grid users-stats-grid">
+                <div class="stat-card animate-fade-in-up delay-1">
+                    <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5zM8 9h8M8 13h8"/></svg></div>
+                    <div class="stat-number">247</div>
+                    <div class="stat-label">Total vérifications</div>
+                </div>
+                <div class="stat-card animate-fade-in-up delay-2">
+                    <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5 10 17l9-10"/></svg></div>
+                    <div class="stat-number">198</div>
+                    <div class="stat-label">Conformes</div>
+                </div>
+                <div class="stat-card animate-fade-in-up delay-3">
+                    <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v5M12 16h.01"/></svg></div>
+                    <div class="stat-number">32</div>
+                    <div class="stat-label">À surveiller</div>
+                </div>
+                <div class="stat-card animate-fade-in-up delay-4">
+                    <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
+                    <div class="stat-number">17</div>
+                    <div class="stat-label">Signalés</div>
+                </div>
+            </div>
+
+            <div class="search-bar">
+                <div class="search-field">
+                    <span class="search-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg></span>
+                    <input type="text" placeholder="Rechercher par matricule..." class="search-input">
+                </div>
+                <select class="filter-select">
+                    <option value="">Tous les statuts</option>
+                    <option value="conforme">Conforme</option>
+                    <option value="surveiller">À surveiller</option>
+                    <option value="non-conforme">Non conforme</option>
+                </select>
+                <select class="filter-select">
+                    <option value="">Toutes les dates</option>
+                    <option value="jour">Aujourd'hui</option>
+                    <option value="semaine">Cette semaine</option>
+                    <option value="mois">Ce mois</option>
+                </select>
+            </div>
+
+            <div class="table-container audit-table-wrap">
+                <table class="data-table audit-table">
+                    <thead>
+                        <tr>
+                            <th>Date / Heure</th>
+                            <th>Matricule</th>
+                            <th>Véhicule</th>
+                            <th>Propriétaire</th>
+                            <th>Zone</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="audit-date">21/09/2026 14:32</td>
+                            <td><strong class="matricule">KIN 5678 CD</strong></td>
+                            <td>Hyundai H1</td>
+                            <td>MUKENDI Paul</td>
+                            <td>Boulevard Lumumba</td>
+                            <td><span class="status-badge status-non-conforme">Non conforme</span></td>
+                            <td class="actions-cell">
+                                <button class="btn-action btn-view" title="Voir" type="button" aria-label="Voir"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="audit-date">21/09/2026 14:15</td>
+                            <td><strong class="matricule">KIN 1234 AB</strong></td>
+                            <td>Toyota Hiace</td>
+                            <td>KABILA Jean</td>
+                            <td>Boulevard Lumumba</td>
+                            <td><span class="status-badge status-conforme">Conforme</span></td>
+                            <td class="actions-cell">
+                                <button class="btn-action btn-view" title="Voir" type="button" aria-label="Voir"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="audit-date">21/09/2026 13:48</td>
+                            <td><strong class="matricule">KIN 9012 EF</strong></td>
+                            <td>Mercedes 207</td>
+                            <td>ILUNGA Marc</td>
+                            <td>Avenue Kasa-Vubu</td>
+                            <td><span class="status-badge status-surveiller">À surveiller</span></td>
+                            <td class="actions-cell">
+                                <button class="btn-action btn-view" title="Voir" type="button" aria-label="Voir"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="audit-date">21/09/2026 13:22</td>
+                            <td><strong class="matricule">KIN 3456 GH</strong></td>
+                            <td>Toyota Corolla</td>
+                            <td>KASONGO Alice</td>
+                            <td>Boulevard Lumumba</td>
+                            <td><span class="status-badge status-conforme">Conforme</span></td>
+                            <td class="actions-cell">
+                                <button class="btn-action btn-view" title="Voir" type="button" aria-label="Voir"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="audit-date">21/09/2026 12:55</td>
+                            <td><strong class="matricule">KIN 7890 IJ</strong></td>
+                            <td>Nissan Urvan</td>
+                            <td>TSHIMANGA Bob</td>
+                            <td>Avenue Kasa-Vubu</td>
+                            <td><span class="status-badge status-surveiller">À surveiller</span></td>
+                            <td class="actions-cell">
+                                <button class="btn-action btn-view" title="Voir" type="button" aria-label="Voir"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="audit-date">21/09/2026 12:30</td>
+                            <td><strong class="matricule">KIN 2468 KL</strong></td>
+                            <td>Toyota Land Cruiser</td>
+                            <td>KABILA Jean</td>
+                            <td>Boulevard Lumumba</td>
+                            <td><span class="status-badge status-conforme">Conforme</span></td>
+                            <td class="actions-cell">
+                                <button class="btn-action btn-view" title="Voir" type="button" aria-label="Voir"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="audit-date">21/09/2026 11:45</td>
+                            <td><strong class="matricule">KIN 1357 MO</strong></td>
+                            <td>Hyundai Accent</td>
+                            <td>MUKENDI Paul</td>
+                            <td>Avenue Kasa-Vubu</td>
+                            <td><span class="status-badge status-non-conforme">Non conforme</span></td>
+                            <td class="actions-cell">
+                                <button class="btn-action btn-view" title="Voir" type="button" aria-label="Voir"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="audit-date">21/09/2026 11:20</td>
+                            <td><strong class="matricule">KIN 8642 PR</strong></td>
+                            <td>Toyota Camry</td>
+                            <td>ILUNGA Marc</td>
+                            <td>Boulevard Lumumba</td>
+                            <td><span class="status-badge status-conforme">Conforme</span></td>
+                            <td class="actions-cell">
+                                <button class="btn-action btn-view" title="Voir" type="button" aria-label="Voir"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="audit-date">21/09/2026 10:50</td>
+                            <td><strong class="matricule">KIN 9753 ST</strong></td>
+                            <td>Nissan Patrol</td>
+                            <td>KASONGO Alice</td>
+                            <td>Avenue Kasa-Vubu</td>
+                            <td><span class="status-badge status-surveiller">À surveiller</span></td>
+                            <td class="actions-cell">
+                                <button class="btn-action btn-view" title="Voir" type="button" aria-label="Voir"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="audit-date">21/09/2026 10:15</td>
+                            <td><strong class="matricule">KIN 2468 UV</strong></td>
+                            <td>Mitsubishi Pajero</td>
+                            <td>TSHIMANGA Bob</td>
+                            <td>Boulevard Lumumba</td>
+                            <td><span class="status-badge status-conforme">Conforme</span></td>
+                            <td class="actions-cell">
+                                <button class="btn-action btn-view" title="Voir" type="button" aria-label="Voir"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination">
+                <button class="page-btn" disabled>← Précédent</button>
+                <span class="page-info">Page 1 sur 25</span>
+                <button class="page-btn">Suivant →</button>
+            </div>
+
+        </main>
+    </div>
+
+    <footer class="main-footer">
+        <div class="footer-content">
+            <p class="footer-copyright">&copy; 2027 KAPITRANS. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+</body>
+<script>
+    document.querySelector('.print-date').textContent = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long' }).format(new Date());
+    document.querySelector('.export-pdf').addEventListener('click', function() {
+        window.print();
+    });
+</script>
+</html>

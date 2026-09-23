@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="logokapitrans.png">
+    <title>KAPITRANS — Créer un utilisateur</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="register-body">
+    <div class="register-shell">
+        <aside class="register-brand">
+            <div class="brand-wave wave-one"></div>
+            <div class="brand-wave wave-two"></div>
+            <div class="brand-content">
+                <div class="brand-logo">
+                    <img src="logokapitrans.png" alt="Logo KapiTrans">
+                    <span>KAPITRANS</span>
+                </div>
+                <h1>Créer un compte</h1>
+                <p>Ajoutez un nouvel utilisateur, configurez ses accès et sécurisez l'administration de votre plateforme.</p>
+                <ul class="brand-list">
+                    <li>Accès sécurisé</li>
+                    <li>Rôles personnalisés</li>
+                    <li>Gestion centrale</li>
+                </ul>
+            </div>
+        </aside>
+
+        <section class="register-panel">
+            <div class="panel-topbar">
+                <span class="eyebrow">Espace Admin</span>
+                <a href="admin-users.html" class="back-link">← Retour</a>
+            </div>
+
+            <div class="panel-header">
+                <h2>Inscription utilisateur</h2>
+                <p>Complétez les informations ci-dessous pour créer un nouveau profil.</p>
+            </div>
+
+            <form class="register-form" id="create-user-form">
+                <div class="form-grid">
+                    <label class="field">
+                        <span>Nom</span>
+                        <input type="text" name="nom" placeholder="Ex. MUKENDI" required>
+                    </label>
+                    <label class="field">
+                        <span>Prénom</span>
+                        <input type="text" name="prenom" placeholder="Ex. Paul" required>
+                    </label>
+                    <label class="field field-full">
+                        <span>Email</span>
+                        <input type="email" name="email" placeholder="Ex. paul.mukendi@kapitrans.cd" required>
+                    </label>
+                    <label class="field">
+                        <span>Téléphone</span>
+                        <input type="tel" name="telephone" placeholder="Ex. +243 81 234 5678">
+                    </label>
+                    <label class="field">
+                        <span>Rôle</span>
+                        <select name="role" required>
+                            <option value="">Sélectionner</option>
+                            <option>Administrateur</option>
+                            <option>Superviseur</option>
+                            <option>Agent de contrôle</option>
+                            <option>Garage</option>
+                            <option>DGI</option>
+                        </select>
+                    </label>
+                    <label class="field">
+                        <span>Zone</span>
+                        <input type="text" name="zone" placeholder="Ex. Boulevard Lumumba">
+                    </label>
+                    <label class="field field-full">
+                        <span>Mot de passe</span>
+                        <input type="password" name="password" placeholder="Minimum 8 caractères" required>
+                    </label>
+                    <label class="field field-full">
+                        <span>Confirmer le mot de passe</span>
+                        <input type="password" name="password-confirm" placeholder="Retapez le mot de passe" required>
+                    </label>
+                </div>
+
+                <div class="options-box">
+                    <label class="check-row">
+                        <input type="checkbox" checked>
+                        <span>Générer automatiquement le mot de passe</span>
+                    </label>
+                    <label class="check-row">
+                        <input type="checkbox" checked>
+                        <span>Envoyer les identifiants par email</span>
+                    </label>
+                </div>
+
+                <div class="permission-box">
+                    <div class="permission-header">
+                        <h3>Onglets autorisés</h3>
+                        <span class="permission-tag">Accès admin</span>
+                    </div>
+
+                    <div class="module-group">
+                        <div class="module-category">
+                            <div class="module-title-row">
+                                <span>Administration</span>
+                                <label class="mini-toggle"><input type="checkbox" checked><span>Tout</span></label>
+                            </div>
+                            <div class="module-list">
+                                <label class="module-item"><input type="checkbox" checked><span>Tableau de bord</span></label>
+                                <label class="module-item"><input type="checkbox" checked><span>Utilisateurs</span></label>
+                                <label class="module-item"><input type="checkbox" checked><span>Véhicules</span></label>
+                                <label class="module-item"><input type="checkbox"><span>Documents</span></label>
+                                <label class="module-item"><input type="checkbox"><span>Cessions</span></label>
+                                <label class="module-item"><input type="checkbox"><span>Alertes</span></label>
+                            </div>
+                        </div>
+
+                        <div class="module-category">
+                            <div class="module-title-row">
+                                <span>Contrôle routier</span>
+                                <label class="mini-toggle"><input type="checkbox"><span>Tout</span></label>
+                            </div>
+                            <div class="module-list">
+                                <label class="module-item"><input type="checkbox" checked><span>Recherche véhicule</span></label>
+                                <label class="module-item"><input type="checkbox"><span>Mes vérifications</span></label>
+                                <label class="module-item"><input type="checkbox"><span>Historique</span></label>
+                            </div>
+                        </div>
+
+                        <div class="module-category">
+                            <div class="module-title-row">
+                                <span>Maintenance</span>
+                                <label class="mini-toggle"><input type="checkbox"><span>Tout</span></label>
+                            </div>
+                            <div class="module-list">
+                                <label class="module-item"><input type="checkbox"><span>Maintenance</span></label>
+                                <label class="module-item"><input type="checkbox"><span>Interventions</span></label>
+                                <label class="module-item"><input type="checkbox"><span>Garage</span></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="admin-users.html" class="btn-secondary">Annuler</a>
+                    <button type="submit" class="btn-primary">Créer l'utilisateur</button>
+                </div>
+            </form>
+        </section>
+    </div>
+</body>
+</html>
