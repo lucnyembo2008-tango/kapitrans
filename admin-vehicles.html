@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="logokapitrans.png">
     <title>KAPITRANS — Véhicules</title>
+    <script src="js/theme.js"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="admin-body">
@@ -12,6 +13,7 @@
     <!-- ========== HEADER ADMIN ========== -->
     <header class="main-header">
         <div class="logo-container">
+            <button class="menu-toggle" type="button" aria-label="Masquer les onglets" aria-controls="admin-sidebar" aria-expanded="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
             <img src="logokapitrans.png" alt="Logo KapiTrans" class="logo">
             <span class="logo-text">KAPITRANS</span>
         </div>
@@ -26,7 +28,7 @@
     <div class="admin-layout">
 
         <!-- ========== MENU LATÉRAL ========== -->
-        <aside class="sidebar">
+        <aside id="admin-sidebar" class="sidebar">
             <div class="sidebar-brand">
                 <img src="logokapitrans.png" alt="Logo KapiTrans" class="sidebar-logo">
                 <span>KAPITRANS</span>
@@ -47,6 +49,10 @@
                 <a href="admin-map.html" class="sidebar-link">
                     <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18 3 20V6l6-2 6 2 6-2v14l-6 2-6-2Zm0-14v14m6-12v14"/></svg></span>
                     Carte GPS
+                </a>
+                <a href="admin-pvs.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6zM14 3v4h4M9 12h6M9 16h6"/></svg></span>
+                    Procès-verbaux
                 </a>
                 <a href="admin-documents.html" class="sidebar-link">
                     <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6zM14 3v4h4M9 12h6M9 16h6"/></svg></span>
@@ -98,55 +104,24 @@
             <div class="stats-grid vehicles-stats-grid">
                 <div class="stat-card animate-fade-in-up delay-1">
                     <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m5 16 1.5-6h11L19 16M4 16h16v3H4zM7 19v1M17 19v1M7 13h10"/></svg></div>
-                    <div class="stat-number">48 732</div>
+                    <div class="stat-number">0</div>
                     <div class="stat-label">Véhicules enregistrés</div>
                 </div>
                 <div class="stat-card animate-fade-in-up delay-2">
                     <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5 10 17 19 7"/></svg></div>
-                    <div class="stat-number">38 498</div>
+                    <div class="stat-number">0</div>
                     <div class="stat-label">Véhicules conformes</div>
                 </div>
                 <div class="stat-card animate-fade-in-up delay-3">
                     <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 4 21 20H3zM12 9v5M12 17h.01"/></svg></div>
-                    <div class="stat-number">7 310</div>
+                    <div class="stat-number">0</div>
                     <div class="stat-label">À surveiller</div>
                 </div>
                 <div class="stat-card animate-fade-in-up delay-4">
                     <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="m9 9 6 6M15 9l-6 6"/></svg></div>
-                    <div class="stat-number">2 924</div>
+                    <div class="stat-number">0</div>
                     <div class="stat-label">Non conformes</div>
                 </div>
-            </div>
-
-            <div class="insight-grid">
-                <section class="insight-panel">
-                    <div class="panel-heading">
-                        <h2 class="block-title">Statut des véhicules</h2>
-                        <span class="panel-period">Global</span>
-                    </div>
-                    <div class="status-stack">
-                        <div class="status-stack-row"><span>Conformes</span><div class="stack-bar"><i style="width: 78%"></i></div><b>38 498</b></div>
-                        <div class="status-stack-row"><span>À surveiller</span><div class="stack-bar warn"><i style="width: 15%"></i></div><b>7 310</b></div>
-                        <div class="status-stack-row"><span>Non conformes</span><div class="stack-bar danger"><i style="width: 7%"></i></div><b>2 924</b></div>
-                    </div>
-                </section>
-
-                <section class="insight-panel">
-                    <div class="panel-heading">
-                        <h2 class="block-title">Flux de circulation</h2>
-                        <span class="panel-period">Cette semaine</span>
-                    </div>
-                    <div class="trend-chart" aria-label="Évolution du flux de circulation des véhicules">
-                        <svg viewBox="0 0 220 120" preserveAspectRatio="none" role="img" aria-hidden="true">
-                            <path d="M0 92 L30 88 L60 72 L90 76 L120 60 L150 54 L180 38 L220 22" fill="none" stroke="#7c3aed" stroke-width="4" stroke-linecap="round"></path>
-                            <path d="M0 92 L30 88 L60 72 L90 76 L120 60 L150 54 L180 38 L220 22 L220 120 L0 120 Z" fill="rgba(124, 58, 237, .10)"></path>
-                        </svg>
-                    </div>
-                    <div class="chart-summary">
-                        <span>+12% de flux</span>
-                        <strong>4 382</strong>
-                    </div>
-                </section>
             </div>
 
             <!-- ========== BARRE DE RECHERCHE ========== -->
@@ -267,12 +242,6 @@
             </div>
 
             <!-- ========== PAGINATION ========== -->
-            <div class="pagination">
-                <button class="page-btn" disabled>← Précédent</button>
-                <span class="page-info">Page 1 sur 8 122</span>
-                <button class="page-btn">Suivant →</button>
-            </div>
-
         </main>
     </div>
 
@@ -285,6 +254,10 @@
         </div>
     </footer>
 
+    <script src="js/logout.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/vehicles.js"></script>
     <script>
         document.querySelector('.print-date').textContent = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long' }).format(new Date());
         document.querySelector('.export-pdf').addEventListener('click', function() {

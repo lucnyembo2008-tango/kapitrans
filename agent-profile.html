@@ -5,19 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="logokapitrans.png">
     <title>KAPITRANS — Mon profil</title>
+    <script src="js/theme.js"></script>
+    <script src="js/session.js"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="admin-body">
 
     <header class="main-header">
         <div class="topbar-start">
-            <span class="menu-toggle" aria-hidden="true">☰</span>
-            <a href="index.html" class="topbar-link">Aperçu du site</a>
+            <button class="menu-toggle" type="button" aria-label="Afficher les onglets" aria-controls="admin-sidebar" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
             <a href="agent-history.html" class="topbar-link">Mes vérifications</a>
         </div>
         <div class="admin-info">
             <span class="admin-badge">Agent</span>
-            <span class="admin-name">MUKENDI Paul</span>
+            <span class="admin-name">Utilisateur</span>
             <a href="login.html" class="btn-logout">Déconnexion</a>
         </div>
     </header>
@@ -25,7 +26,7 @@
     <!-- ========== LAYOUT AGENT ========== -->
     <div class="admin-layout">
 
-        <aside class="sidebar">
+        <aside id="admin-sidebar" class="sidebar">
             <div class="sidebar-brand">
                 <img src="logokapitrans.png" alt="Logo KapiTrans" class="sidebar-logo">
                 <span>KAPITRANS</span>
@@ -59,12 +60,12 @@
                 <!-- AVATAR ET NOM -->
                 <div class="profile-header">
                     <div class="profile-avatar">
-                        <span>MP</span>
+                        <span>—</span>
                     </div>
                     <div class="profile-identity">
-                        <h2 class="profile-name">MUKENDI Paul</h2>
+                        <h2 class="profile-name">—</h2>
                         <span class="profile-role">Agent de contrôle</span>
-                        <span class="status-badge status-active">Compte actif</span>
+                        <span class="status-badge">—</span>
                     </div>
                 </div>
 
@@ -76,27 +77,27 @@
                     <div class="profile-info-grid">
                         <div class="profile-info-item">
                             <span class="profile-info-label">Nom</span>
-                            <span class="profile-info-value">MUKENDI</span>
+                            <span class="profile-info-value">—</span>
                         </div>
                         <div class="profile-info-item">
                             <span class="profile-info-label">Prénom</span>
-                            <span class="profile-info-value">Paul</span>
+                            <span class="profile-info-value">—</span>
                         </div>
                         <div class="profile-info-item">
                             <span class="profile-info-label">Email</span>
-                            <span class="profile-info-value">paul.mukendi@kapitrans.cd</span>
+                            <span class="profile-info-value">—</span>
                         </div>
                         <div class="profile-info-item">
                             <span class="profile-info-label">Téléphone</span>
-                            <span class="profile-info-value">+243 81 234 5678</span>
+                            <span class="profile-info-value">—</span>
                         </div>
                         <div class="profile-info-item">
                             <span class="profile-info-label">Date de naissance</span>
-                            <span class="profile-info-value">15/06/1990</span>
+                            <span class="profile-info-value">—</span>
                         </div>
                         <div class="profile-info-item">
                             <span class="profile-info-label">N° pièce d'identité</span>
-                            <span class="profile-info-value">1234567890</span>
+                            <span class="profile-info-value">—</span>
                         </div>
                     </div>
                 </div>
@@ -115,15 +116,15 @@
                         </div>
                         <div class="profile-info-item">
                             <span class="profile-info-label">Zone d'affectation</span>
-                            <span class="profile-info-value">Boulevard Lumumba</span>
+                            <span class="profile-info-value">—</span>
                         </div>
                         <div class="profile-info-item">
                             <span class="profile-info-label">Date d'embauche</span>
-                            <span class="profile-info-value">01/03/2024</span>
+                            <span class="profile-info-value">—</span>
                         </div>
                         <div class="profile-info-item">
                             <span class="profile-info-label">Matricule interne</span>
-                            <span class="profile-info-value">AG-2024-012</span>
+                            <span class="profile-info-value">—</span>
                         </div>
                     </div>
                 </div>
@@ -168,19 +169,19 @@
                     </h3>
                     <div class="profile-stats-grid">
                         <div class="profile-stat">
-                            <span class="profile-stat-value">247</span>
+                            <span class="profile-stat-value">0</span>
                             <span class="profile-stat-label">Vérifications totales</span>
                         </div>
                         <div class="profile-stat">
-                            <span class="profile-stat-value profile-stat-green">198</span>
+                            <span class="profile-stat-value profile-stat-green">0</span>
                             <span class="profile-stat-label">Conformes</span>
                         </div>
                         <div class="profile-stat">
-                            <span class="profile-stat-value profile-stat-red">17</span>
+                            <span class="profile-stat-value profile-stat-red">0</span>
                             <span class="profile-stat-label">Signalés</span>
                         </div>
                         <div class="profile-stat">
-                            <span class="profile-stat-value">23</span>
+                            <span class="profile-stat-value">0</span>
                             <span class="profile-stat-label">Aujourd'hui</span>
                         </div>
                     </div>
@@ -206,5 +207,10 @@
         </div>
     </footer>
 
+    <script src="js/logout.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/history.js"></script>
+    <script src="js/profile.js"></script>
 </body>
 </html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="logokapitrans.png">
+    <title>KAPITRANS — Verbaliser un véhicule</title>
+    <script src="js/theme.js"></script>
+    <script src="js/session.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="admin-body">
+    <header class="main-header">
+        <div class="topbar-start">
+            <button class="menu-toggle" type="button" aria-label="Afficher les onglets" aria-controls="admin-sidebar" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        </div>
+        <div class="admin-info">
+            <span class="admin-badge">Agent</span>
+            <span class="admin-name">Utilisateur</span>
+            <a href="login.html" class="btn-logout">Déconnexion</a>
+        </div>
+    </header>
+
+    <div class="admin-layout">
+        <aside id="admin-sidebar" class="sidebar">
+            <div class="sidebar-brand">
+                <img src="logokapitrans.png" alt="Logo KapiTrans" class="sidebar-logo">
+                <span>KAPITRANS</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="agent-search.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg></span>
+                    Recherche véhicule
+                </a>
+                <a href="agent-history.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 5h14v14H5zM8 9h8M8 13h8"/></svg></span>
+                    Mes vérifications
+                </a>
+                <a href="agent-profile.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 19c1.4-2.9 4.1-4.5 8-4.5S18.6 16.1 20 19"/></svg></span>
+                    Mon profil
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Verbaliser un véhicule</h1>
+                    <p class="page-subtitle">Dresser un procès-verbal pour un véhicule en infraction</p>
+                </div>
+            </div>
+
+            <div class="verbalize-container">
+                <section class="vehicle-info-card" aria-labelledby="vehicle-info-title">
+                    <h2 id="vehicle-info-title">Véhicule concerné</h2>
+                    <dl class="vehicle-info-grid">
+                        <div class="vehicle-info-item">
+                            <dt class="vehicle-info-label">Matricule</dt>
+                            <dd class="vehicle-info-value" id="verbalize-matricule">—</dd>
+                        </div>
+                        <div class="vehicle-info-item">
+                            <dt class="vehicle-info-label">Marque</dt>
+                            <dd class="vehicle-info-value" id="verbalize-marque">—</dd>
+                        </div>
+                        <div class="vehicle-info-item">
+                            <dt class="vehicle-info-label">Propriétaire</dt>
+                            <dd class="vehicle-info-value" id="verbalize-proprietaire">—</dd>
+                        </div>
+                    </dl>
+                </section>
+
+                <form id="verbalize-form" class="verbalize-form">
+                    <fieldset class="verbalize-section">
+                        <legend class="verbalize-section-title">Détails de l’infraction</legend>
+                        <div class="verbalize-fields">
+                            <label class="verbalize-field" for="motif">
+                                <span>Motif de l’infraction <span class="required">*</span></span>
+                                <select id="motif" name="motif" required>
+                                    <option value="">— Sélectionner —</option>
+                                    <option value="Visite technique expirée">Visite technique expirée</option>
+                                    <option value="Assurance non valide">Assurance non valide</option>
+                                    <option value="Carte grise falsifiée">Carte grise falsifiée</option>
+                                    <option value="Permis de conduire absent">Permis de conduire absent</option>
+                                    <option value="Surcharge de passagers">Surcharge de passagers</option>
+                                    <option value="Défaut d’éclairage">Défaut d’éclairage</option>
+                                    <option value="Autre">Autre</option>
+                                </select>
+                            </label>
+                            <label class="verbalize-field" for="montant">
+                                <span>Montant de l’amende (FC) <span class="required">*</span></span>
+                                <input type="number" id="montant" name="montant" placeholder="Ex. 50000" min="1" step="1" required>
+                            </label>
+                            <label class="verbalize-field" for="zone">
+                                <span>Zone du contrôle</span>
+                                <input type="text" id="zone" name="zone" placeholder="Ex. Boulevard Lumumba">
+                            </label>
+                            <label class="verbalize-field" for="date-infraction">
+                                <span>Date de l’infraction</span>
+                                <input type="date" id="date-infraction" name="date-infraction" required>
+                            </label>
+                            <label class="verbalize-field verbalize-field-full" for="observations">
+                                <span>Observations</span>
+                                <textarea id="observations" name="observations" rows="4" placeholder="Notes ou remarques sur l’infraction..."></textarea>
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <div class="verbalize-warning" role="note">
+                        <strong>Important</strong>
+                        <p>En validant ce PV, l’infraction sera enregistrée dans le système.</p>
+                    </div>
+                    <p class="verbalize-message" id="verbalize-message" role="status" aria-live="polite"></p>
+                    <div class="verbalize-actions">
+                        <a href="agent-search.html" class="btn-secondary">Annuler</a>
+                        <button type="submit" class="btn-primary btn-danger">Valider le PV</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <footer class="main-footer">
+        <div class="footer-content">
+            <p class="footer-copyright">&copy; 2027 KAPITRANS. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script src="js/logout.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/verbalize.js"></script>
+</body>
+</html>

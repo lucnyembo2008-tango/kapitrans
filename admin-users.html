@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="logokapitrans.png">
     <title>KAPITRANS — Utilisateurs</title>
+    <script src="js/theme.js"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="admin-body">
@@ -12,9 +13,7 @@
     <!-- ========== HEADER ADMIN ========== -->
     <header class="main-header">
         <div class="topbar-start">
-            <span class="menu-toggle" aria-hidden="true">☰</span>
-            <a href="index.html" class="topbar-link">Aperçu du site</a>
-            <a href="index.html#fonctionnalites" class="topbar-link">Documentation</a>
+            <button class="menu-toggle" type="button" aria-label="Afficher les onglets" aria-controls="admin-sidebar" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         </div>
         <div class="admin-info">
             <span class="admin-badge">Admin</span>
@@ -27,7 +26,7 @@
     <div class="admin-layout">
 
         <!-- ========== MENU LATÉRAL ========== -->
-        <aside class="sidebar">
+        <aside id="admin-sidebar" class="sidebar">
             <div class="sidebar-brand">
                 <img src="logokapitrans.png" alt="Logo KapiTrans" class="sidebar-logo">
                 <span>KAPITRANS</span>
@@ -48,6 +47,10 @@
                 <a href="admin-map.html" class="sidebar-link">
                     <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18 3 20V6l6-2 6 2 6-2v14l-6 2-6-2Zm0-14v14m6-12v14"/></svg></span>
                     Carte GPS
+                </a>
+                <a href="admin-pvs.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6zM14 3v4h4M9 12h6M9 16h6"/></svg></span>
+                    Procès-verbaux
                 </a>
                 <a href="admin-documents.html" class="sidebar-link">
                     <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6zM14 3v4h4M9 12h6M9 16h6"/></svg></span>
@@ -98,56 +101,24 @@
             <div class="stats-grid users-stats-grid">
                 <div class="stat-card animate-fade-in-up delay-1">
                     <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3.5 19c.5-3 2.4-4.5 5.5-4.5s5 1.5 5.5 4.5M14 15c3.5-1 6 .6 6.5 3.5"/></svg></div>
-                    <div class="stat-number">12</div>
+                    <div class="stat-number">0</div>
                     <div class="stat-label">Utilisateurs inscrits</div>
                 </div>
                 <div class="stat-card animate-fade-in-up delay-2">
                     <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5 10 17 19 7"/></svg></div>
-                    <div class="stat-number">10</div>
+                    <div class="stat-number">0</div>
                     <div class="stat-label">Comptes actifs</div>
                 </div>
                 <div class="stat-card animate-fade-in-up delay-3">
                     <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 19 6v5c0 5-3 8-7 10-4-2-7-5-7-10V6zM9 12l2 2 4-4"/></svg></div>
-                    <div class="stat-number">5</div>
+                    <div class="stat-number">0</div>
                     <div class="stat-label">Rôles disponibles</div>
                 </div>
                 <div class="stat-card animate-fade-in-up delay-4">
                     <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v5M12 16h.01"/></svg></div>
-                    <div class="stat-number">2</div>
+                    <div class="stat-number">0</div>
                     <div class="stat-label">Comptes inactifs</div>
                 </div>
-            </div>
-
-            <div class="insight-grid">
-                <section class="insight-panel">
-                    <div class="panel-heading">
-                        <h2 class="block-title">Répartition des rôles</h2>
-                        <span class="panel-period">Aujourd'hui</span>
-                    </div>
-                    <div class="role-bars">
-                        <div class="role-bar-row"><span>Admin</span><div class="role-bar"><i style="width: 18%"></i></div><b>2</b></div>
-                        <div class="role-bar-row"><span>Agent</span><div class="role-bar"><i style="width: 56%"></i></div><b>6</b></div>
-                        <div class="role-bar-row"><span>Garage</span><div class="role-bar"><i style="width: 25%"></i></div><b>3</b></div>
-                        <div class="role-bar-row"><span>Superviseur</span><div class="role-bar"><i style="width: 21%"></i></div><b>2</b></div>
-                    </div>
-                </section>
-
-                <section class="insight-panel">
-                    <div class="panel-heading">
-                        <h2 class="block-title">Activité des comptes</h2>
-                        <span class="panel-period">30 jours</span>
-                    </div>
-                    <div class="trend-chart" aria-label="Courbe d'activité des comptes utilisateurs">
-                        <svg viewBox="0 0 220 120" preserveAspectRatio="none" role="img" aria-hidden="true">
-                            <path d="M0 95 L35 82 L70 88 L105 70 L140 66 L175 46 L220 30" fill="none" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"></path>
-                            <path d="M0 95 L35 82 L70 88 L105 70 L140 66 L175 46 L220 30 L220 120 L0 120 Z" fill="rgba(56, 189, 248, .10)"></path>
-                        </svg>
-                    </div>
-                    <div class="chart-summary">
-                        <span>+18% cette période</span>
-                        <strong>1 284</strong>
-                    </div>
-                </section>
             </div>
 
             <!-- ========== BARRE DE RECHERCHE ========== -->
@@ -254,13 +225,6 @@
                 </table>
             </div>
 
-            <!-- ========== PAGINATION ========== -->
-            <div class="pagination">
-                <button class="page-btn" disabled>← Précédent</button>
-                <span class="page-info">Page 1 sur 3</span>
-                <button class="page-btn">Suivant →</button>
-            </div>
-
         </main>
     </div>
 
@@ -273,6 +237,10 @@
         </div>
     </footer>
 
+    <script src="js/logout.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/users.js"></script>
 </body>
 <script>
     document.querySelector('.print-date').textContent = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long' }).format(new Date());

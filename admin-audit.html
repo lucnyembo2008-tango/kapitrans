@@ -5,15 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="logokapitrans.png">
     <title>KAPITRANS — Journal d'audit</title>
+    <script src="js/theme.js"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="admin-body">
 
     <header class="main-header">
         <div class="topbar-start">
-            <span class="menu-toggle" aria-hidden="true">☰</span>
-            <a href="index.html" class="topbar-link">Aperçu du site</a>
-            <a href="index.html#fonctionnalites" class="topbar-link">Documentation</a>
+            <button class="menu-toggle" type="button" aria-label="Afficher les onglets" aria-controls="admin-sidebar" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         </div>
         <div class="admin-info">
             <span class="admin-badge">Admin</span>
@@ -24,7 +23,7 @@
 
     <div class="admin-layout">
 
-        <aside class="sidebar">
+        <aside id="admin-sidebar" class="sidebar">
             <div class="sidebar-brand">
                 <img src="logokapitrans.png" alt="Logo KapiTrans" class="sidebar-logo">
                 <span>KAPITRANS</span>
@@ -45,6 +44,10 @@
                 <a href="admin-map.html" class="sidebar-link">
                     <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18 3 20V6l6-2 6 2 6-2v14l-6 2-6-2Zm0-14v14m6-12v14"/></svg></span>
                     Carte GPS
+                </a>
+                <a href="admin-pvs.html" class="sidebar-link">
+                    <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6zM14 3v4h4M9 12h6M9 16h6"/></svg></span>
+                    Procès-verbaux
                 </a>
                 <a href="admin-documents.html" class="sidebar-link">
                     <span class="sidebar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6zM14 3v4h4M9 12h6M9 16h6"/></svg></span>
@@ -89,22 +92,22 @@
             <div class="stats-grid users-stats-grid">
                 <div class="stat-card animate-fade-in-up delay-1">
                     <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></div>
-                    <div class="stat-number">12 847</div>
+                    <div class="stat-number" data-audit-stat="total">0</div>
                     <div class="stat-label">Total actions</div>
                 </div>
                 <div class="stat-card animate-fade-in-up delay-2">
                     <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/></svg></div>
-                    <div class="stat-number">342</div>
+                    <div class="stat-number" data-audit-stat="today">0</div>
                     <div class="stat-label">Aujourd'hui</div>
                 </div>
                 <div class="stat-card animate-fade-in-up delay-3">
                     <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"/></svg></div>
-                    <div class="stat-number">1 247</div>
+                    <div class="stat-number" data-audit-stat="modifications">0</div>
                     <div class="stat-label">Modifications</div>
                 </div>
                 <div class="stat-card animate-fade-in-up delay-4">
                     <div class="stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></div>
-                    <div class="stat-number">23</div>
+                    <div class="stat-number" data-audit-stat="deletions">0</div>
                     <div class="stat-label">Suppressions</div>
                 </div>
             </div>
@@ -116,10 +119,6 @@
                 </div>
                 <select class="filter-select">
                     <option value="">Tous les utilisateurs</option>
-                    <option value="kabila">KABILA Jean</option>
-                    <option value="mukendi">MUKENDI Paul</option>
-                    <option value="ilunga">ILUNGA Marc</option>
-                    <option value="kasongo">KASONGO Alice</option>
                 </select>
                 <select class="filter-select">
                     <option value="">Toutes les actions</option>
@@ -151,95 +150,8 @@
                             <th>Adresse IP</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td class="audit-date">21/09/2026 14:32:15</td>
-                            <td><strong>KABILA Jean</strong></td>
-                            <td><span class="audit-action action-create">CREATE</span></td>
-                            <td><span class="audit-entity">VEHICLE</span></td>
-                            <td>Création du véhicule KIN 1234 AB</td>
-                            <td class="audit-ip">192.168.1.45</td>
-                        </tr>
-                        <tr>
-                            <td class="audit-date">21/09/2026 14:30:42</td>
-                            <td><strong>MUKENDI Paul</strong></td>
-                            <td><span class="audit-action action-login">LOGIN</span></td>
-                            <td><span class="audit-entity">USER</span></td>
-                            <td>Connexion réussie</td>
-                            <td class="audit-ip">192.168.1.78</td>
-                        </tr>
-                        <tr>
-                            <td class="audit-date">21/09/2026 14:25:08</td>
-                            <td><strong>MUKENDI Paul</strong></td>
-                            <td><span class="audit-action action-view">VIEW</span></td>
-                            <td><span class="audit-entity">VEHICLE</span></td>
-                            <td>Consultation du véhicule KIN 5678 CD</td>
-                            <td class="audit-ip">192.168.1.78</td>
-                        </tr>
-                        <tr>
-                            <td class="audit-date">21/09/2026 14:20:33</td>
-                            <td><strong>ILUNGA Marc</strong></td>
-                            <td><span class="audit-action action-update">UPDATE</span></td>
-                            <td><span class="audit-entity">DOCUMENT</span></td>
-                            <td>Modification assurance KIN 9012 EF</td>
-                            <td class="audit-ip">192.168.1.92</td>
-                        </tr>
-                        <tr>
-                            <td class="audit-date">21/09/2026 14:15:21</td>
-                            <td><strong>KABILA Jean</strong></td>
-                            <td><span class="audit-action action-create">CREATE</span></td>
-                            <td><span class="audit-entity">USER</span></td>
-                            <td>Création utilisateur paul.mukendi@kapitrans.cd</td>
-                            <td class="audit-ip">192.168.1.45</td>
-                        </tr>
-                        <tr>
-                            <td class="audit-date">21/09/2026 14:10:05</td>
-                            <td><strong>KASONGO Alice</strong></td>
-                            <td><span class="audit-action action-create">CREATE</span></td>
-                            <td><span class="audit-entity">ALERT</span></td>
-                            <td>Signalement véhicule KIN 5678 CD</td>
-                            <td class="audit-ip">192.168.1.103</td>
-                        </tr>
-                        <tr>
-                            <td class="audit-date">21/09/2026 14:05:47</td>
-                            <td><strong>KABILA Jean</strong></td>
-                            <td><span class="audit-action action-delete">DELETE</span></td>
-                            <td><span class="audit-entity">DOCUMENT</span></td>
-                            <td>Suppression ancienne assurance</td>
-                            <td class="audit-ip">192.168.1.45</td>
-                        </tr>
-                        <tr>
-                            <td class="audit-date">21/09/2026 14:00:12</td>
-                            <td><strong>MUKENDI Paul</strong></td>
-                            <td><span class="audit-action action-logout">LOGOUT</span></td>
-                            <td><span class="audit-entity">USER</span></td>
-                            <td>Déconnexion</td>
-                            <td class="audit-ip">192.168.1.78</td>
-                        </tr>
-                        <tr>
-                            <td class="audit-date">21/09/2026 13:55:33</td>
-                            <td><strong>KABILA Jean</strong></td>
-                            <td><span class="audit-action action-update">UPDATE</span></td>
-                            <td><span class="audit-entity">USER</span></td>
-                            <td>Modification droits de MUKENDI Paul</td>
-                            <td class="audit-ip">192.168.1.45</td>
-                        </tr>
-                        <tr>
-                            <td class="audit-date">21/09/2026 13:50:18</td>
-                            <td><strong>ILUNGA Marc</strong></td>
-                            <td><span class="audit-action action-view">VIEW</span></td>
-                            <td><span class="audit-entity">VEHICLE</span></td>
-                            <td>Consultation du véhicule KIN 7890 IJ</td>
-                            <td class="audit-ip">192.168.1.92</td>
-                        </tr>
-                    </tbody>
+                    <tbody></tbody>
                 </table>
-            </div>
-
-            <div class="pagination">
-                <button class="page-btn" disabled>← Précédent</button>
-                <span class="page-info">Page 1 sur 1 285</span>
-                <button class="page-btn">Suivant →</button>
             </div>
 
         </main>
@@ -251,6 +163,10 @@
         </div>
     </footer>
 
+    <script src="js/logout.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/audit.js"></script>
 </body>
 <script>
     document.querySelector('.print-date').textContent = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long' }).format(new Date());

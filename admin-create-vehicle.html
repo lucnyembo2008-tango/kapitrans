@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="logokapitrans.png">
     <title>KAPITRANS — Ajouter un véhicule</title>
+    <script src="js/theme.js"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="register-body">
@@ -57,6 +58,16 @@
                     <label class="field"><span>Usage</span><select name="usage"><option value="">Sélectionner</option><option value="public">Public</option><option value="prive">Privé</option><option value="commercial">Commercial</option></select></label>
                 </div>
 
+                <div class="vehicle-section-heading"><span class="section-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg></span><span>Localisation</span></div>
+                <div class="form-grid">
+                    <label class="field"><span>Province *</span><select name="province" required><option value="">Sélectionner une province</option><option value="kinshasa">Kinshasa</option><option value="kongo-central">Kongo-Central</option><option value="kwango">Kwango</option><option value="kwilu">Kwilu</option><option value="mai-ndombe">Mai-Ndombe</option><option value="kasai">Kasaï</option><option value="kasai-central">Kasaï-Central</option><option value="kasai-oriental">Kasaï-Oriental</option><option value="lomami">Lomami</option><option value="sankuru">Sankuru</option><option value="maniema">Maniema</option><option value="sud-kivu">Sud-Kivu</option><option value="nord-kivu">Nord-Kivu</option><option value="ituri">Ituri</option><option value="haut-uele">Haut-Uélé</option><option value="tshopo">Tshopo</option><option value="bas-uele">Bas-Uélé</option><option value="nord-ubangi">Nord-Ubangi</option><option value="mongala">Mongala</option><option value="sud-ubangi">Sud-Ubangi</option><option value="equateur">Équateur</option><option value="tshuapa">Tshuapa</option><option value="tanganyika">Tanganyika</option><option value="haut-lomami">Haut-Lomami</option><option value="lualaba">Lualaba</option><option value="haut-katanga">Haut-Katanga</option></select></label>
+                    <label class="field"><span>Ville</span><input type="text" name="ville" placeholder="Ex. Kinshasa"></label>
+                    <label class="field"><span>Zone / quartier</span><input type="text" name="zone" placeholder="Ex. Gombe"></label>
+                    <label class="field"><span>Latitude *</span><input type="number" name="lat" step="any" min="-90" max="90" placeholder="Ex. -4.325" required></label>
+                    <label class="field"><span>Longitude *</span><input type="number" name="lng" step="any" min="-180" max="180" placeholder="Ex. 15.322" required></label>
+                </div>
+                <button class="btn-secondary" id="get-current-location" type="button">Obtenir ma position GPS</button>
+
                 <div class="vehicle-section-heading"><span class="section-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3.5 19c.5-3 2.4-4.5 5.5-4.5s5 1.5 5.5 4.5M15 6a2.5 2.5 0 1 1 0 5M15 14c3 .1 4.8 1.8 5.3 4.5"/></svg></span><span>Propriétaire</span></div>
                 <div class="form-grid">
                     <label class="field"><span>Nom du propriétaire *</span><input type="text" name="proprietaire-nom" placeholder="Ex. KABILA" required></label>
@@ -79,5 +90,9 @@
             </form>
         </section>
     </div>
+    <script src="js/logout.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/audit.js"></script>
+    <script src="js/create-vehicle.js"></script>
 </body>
 </html>
