@@ -1,339 +1,276 @@
-document.addEventListener('DOMContentLoaded', function () {
+import { db } from './firebase.js';
+import { addDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+document.addEventListener('DOMContentLoaded', async function () {
     const form = document.getElementById('vehicle-search-form');
     const input = document.getElementById('vehicle-registration');
-    if (!form || !input) return;
-
+    const resultConforme = document.getElementById('result-conforme');
+    const resultNonConforme = document.getElementById('result-non-conforme');
     const recentList = document.querySelector('.recent-list');
-    document.querySelector('.demo-links')?.remove();
-    const resultSections = [
-        document.getElementById('result-conforme'),
-        document.getElementById('result-non-conforme')
-    ].filter(Boolean);
 
-    function readStored(key, fallback) {
-        const value = JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
-        return value;
-    }
-
-    function readVehicles() {
-        const stored = readStored('kapitrans-vehicles', {});
-        if (!stored || Array.isArray(stored) || typeof stored !== 'object') {
-            throw new Error('Le registre des véhicules doit être un objet valide.');
+    function getCurrentAgentName() {
+        try {
+            const user = JSON.parse(localStorage.getItem('kapitrans-user') || 'null');
+            if (user?.nom) return user.nom;
+            if (user?.email) return user.email.split('@')[0];
+        } catch (error) {
+            console.warn('Impossible de lire le profil de l’agent.', error);
         }
-        return stored;
+        return 'Agent';
     }
 
-    function documentStatus(expiration) {
-        if (!expiration) return 'surveiller';
-        const expiry = new Date(expiration + (expiration.length === 10 ? 'T23:59:59' : ''));
-        if (Number.isNaN(expiry.getTime())) return 'surveiller';
-        const days = Math.ceil((expiry.getTime() - Date.now()) / 86400000);
-        if (days < 0) return 'non-conforme';
-        if (days < 30) return 'surveiller';
-        return 'conforme';
-    }
-
-    function normalizeDocumentStatus(status) {
-        if (status === 'expire' || status === 'non-conforme') return 'non-conforme';
-        if (status === 'bientot' || status === 'surveiller') return 'surveiller';
-        return 'conforme';
-    }
-
-    function getDocumentStatus(documentRecord) {
-        const expiration = documentRecord.dateExpiration || documentRecord.expiration;
-        if (expiration) return documentStatus(String(expiration));
-        if (!documentRecord.statut) return 'surveiller';
-        return normalizeDocumentStatus(documentRecord.statut);
-    }
-
-    function getVehicleDocuments(vehicle, matricule) {
-        const documents = [];
-        const labels = {
-            carteGrise: 'Carte grise',
-            assurance: 'Assurance',
-            visiteTechnique: 'Visite technique'
-        };
-
-        Object.keys(labels).forEach(function (key) {
-            const item = vehicle.documents && vehicle.documents[key];
-            if (!item || (!item.numero && !item.expiration)) return;
-            documents.push({
-                nom: labels[key],
-                expiration: item.expiration || '',
-                statut: documentStatus(item.expiration)
-            });
-        });
-
-        const registeredDocuments = readStored('kapitrans-documents', []);
-        if (!Array.isArray(registeredDocuments)) {
-            throw new Error('Le registre des documents doit être une liste valide.');
+    function readRecentSearches() {
+        try {
+            return JSON.parse(localStorage.getItem('kapitrans-recent-searches') || '[]');
+        } catch (error) {
+            return [];
         }
-        registeredDocuments
-            .filter(function (doc) {
-                return String(doc.matricule || '').trim().toUpperCase() === matricule;
-            })
-            .forEach(function (doc) {
-                documents.push({
-                    nom: doc.type || 'Document',
-                    expiration: doc.dateExpiration || '',
-                    statut: getDocumentStatus(doc)
-                });
-            });
-        return documents;
     }
 
-    function deriveStatus(vehicle, documents) {
-        const statuses = documents.map(function (doc) { return doc.statut; });
-        const savedStatus = normalizeDocumentStatus(vehicle.statut || 'conforme');
-        statuses.push(savedStatus);
-        if (statuses.includes('non-conforme')) return 'non-conforme';
-        if (statuses.includes('surveiller')) return 'surveiller';
-        return 'conforme';
-    }
-
-    function makeVehicle(matricule) {
-        const stored = readVehicles();
-        const key = Object.keys(stored).find(function (candidate) {
-            return candidate.trim().toUpperCase() === matricule;
-        });
-        if (!key) return null;
-
-        const source = stored[key];
-        const documents = getVehicleDocuments(source, matricule);
-        return {
-            matricule: source.matricule || key,
-            marque: [source.marque, source.modele].filter(Boolean).join(' ') || '—',
-            categorie: source.categorie || '—',
-            proprietaire: typeof source.proprietaire === 'string'
-                ? source.proprietaire
-                : source.proprietaire?.nom || '—',
-            conducteur: source.conducteur || '—',
-            zone: source.zone || source.ville || '—',
-            statut: deriveStatus(source, documents),
-            documents: documents
-        };
-    }
-
-    function setText(selector, value, target) {
-        const element = target.querySelector(selector);
-        if (element) element.textContent = value;
-    }
-
-    function renderDocuments(target, documents) {
-        const list = target.querySelector('.result-doc-list');
-        if (!list) return;
-        list.replaceChildren();
-
-        if (documents.length === 0) {
-            const empty = document.createElement('p');
-            empty.className = 'result-doc-empty';
-            empty.textContent = 'Aucun document enregistré pour ce véhicule.';
-            list.appendChild(empty);
-            return;
-        }
-
-        documents.forEach(function (doc) {
-            const row = document.createElement('div');
-            row.className = 'result-doc-item';
-            const name = document.createElement('span');
-            name.className = 'result-doc-name';
-            name.textContent = doc.nom;
-            const expiry = document.createElement('span');
-            expiry.className = 'result-doc-expiry';
-            expiry.textContent = doc.expiration || '—';
-            const badge = document.createElement('span');
-            badge.className = `status-badge status-${doc.statut}`;
-            badge.textContent = doc.statut === 'conforme' ? 'Valide' :
-                doc.statut === 'surveiller' ? 'Expire bientôt' : 'Expiré';
-            row.append(name, expiry, badge);
-            list.appendChild(row);
-        });
-    }
-
-    function renderVehicle(vehicle) {
-        const isConforming = vehicle.statut === 'conforme';
-        const target = document.getElementById(isConforming ? 'result-conforme' : 'result-non-conforme');
-        if (!target) return;
-
-        resultSections.forEach(function (section) {
-            section.classList.remove('is-active');
-        });
-        target.classList.add('is-active');
-        setText('.result-matricule', vehicle.matricule, target);
-        setText('.result-vehicle-model', `${vehicle.marque} · ${vehicle.categorie}`, target);
-        const infoValues = target.querySelectorAll('.result-info-value');
-        if (infoValues[0]) infoValues[0].textContent = vehicle.proprietaire;
-        if (infoValues[1]) infoValues[1].textContent = vehicle.conducteur;
-        renderDocuments(target, vehicle.documents);
-
-        const statusLabel = vehicle.statut === 'conforme' ? 'CONFORME' :
-            vehicle.statut === 'surveiller' ? 'À SURVEILLER' : 'NON CONFORME';
-        const badge = target.querySelector('.result-status-badge');
-        if (badge) {
-            badge.className = `result-status-badge result-status-${vehicle.statut}`;
-            badge.textContent = statusLabel;
-        }
-        const header = target.querySelector('.result-header');
-        if (header) header.className = `result-header result-header-${vehicle.statut}`;
-        const alerts = target.querySelector('.result-alerts');
-        if (alerts) {
-            alerts.replaceChildren();
-            vehicle.documents
-                .filter(function (doc) { return doc.statut !== 'conforme'; })
-                .forEach(function (doc) {
-                    const alert = document.createElement('div');
-                    alert.className = 'result-alert result-alert-red';
-                    alert.textContent = `${doc.nom} : ${doc.statut === 'surveiller' ? 'expiration prochaine' : 'expiré'} (${doc.expiration || 'date inconnue'})`;
-                    alerts.appendChild(alert);
-                });
-        }
-
-        const message = target.querySelector('.result-message');
-        if (message) {
-            const strong = message.querySelector('strong');
-            const paragraph = message.querySelector('p');
-            if (strong) strong.textContent = vehicle.statut === 'conforme'
-                ? 'Tous les documents sont valides.'
-                : vehicle.statut === 'surveiller'
-                    ? 'Un ou plusieurs documents nécessitent une vérification.'
-                    : 'Un ou plusieurs documents ne sont plus valides.';
-            if (paragraph) paragraph.textContent = vehicle.statut === 'conforme'
-                ? 'Le véhicule peut circuler sans restriction.'
-                : 'Vérifiez la situation avant d’autoriser la circulation.';
-        }
-
-        const verbalizeButton = target.querySelector('.btn-danger');
-        if (verbalizeButton) {
-            verbalizeButton.hidden = vehicle.statut !== 'non-conforme';
-            verbalizeButton.onclick = function () {
-                window.location.href = 'agent-verbalize.html?matricule=' + encodeURIComponent(vehicle.matricule);
-            };
-        }
-        const reportButton = target.querySelector('[data-report-vehicle]');
-        if (reportButton) {
-            reportButton.disabled = false;
-            reportButton.onclick = function () {
-                try {
-                    const alerts = readStored('kapitrans-alerts', []);
-                    if (!Array.isArray(alerts)) throw new Error('Le registre des alertes doit être une liste valide.');
-                    const currentUser = readStored('kapitrans-user', null);
-                    const agentName = currentUser?.nom || currentUser?.name || currentUser?.email || 'Agent non identifié';
-                    const reasons = vehicle.documents
-                        .filter(function (doc) { return doc.statut !== 'conforme'; })
-                        .map(function (doc) {
-                            const status = doc.statut === 'surveiller' ? 'expiration prochaine' : 'expiré';
-                            return `${doc.nom} : ${status} (${doc.expiration || 'date inconnue'})`;
-                        });
-                    const now = new Date();
-                    alerts.push({
-                        id: `signalement-${now.getTime()}-${Math.random().toString(36).slice(2, 8)}`,
-                        type: 'controle',
-                        gravite: vehicle.statut === 'non-conforme' ? 'critique' : 'moyenne',
-                        titre: `Véhicule signalé : ${vehicle.matricule}`,
-                        matricule: vehicle.matricule,
-                        marque: vehicle.marque,
-                        proprietaire: vehicle.proprietaire,
-                        agent: agentName,
-                        zone: vehicle.zone,
-                        motif: reasons.join('; ') || 'Signalement transmis par l’agent.',
-                        message: `Signalement transmis par ${agentName}. ${reasons.join('; ') || 'Vérification demandée.'}`,
-                        date: now.toISOString()
-                    });
-                    localStorage.setItem('kapitrans-alerts', JSON.stringify(alerts));
-                    reportButton.disabled = true;
-                    showSearchNotification('Signalement envoyé à l’administration.', 'success');
-                } catch (error) {
-                    console.error('Impossible d’enregistrer le signalement.', error);
-                    showSearchNotification('Le signalement n’a pas pu être enregistré. Réessayez.', 'error');
-                }
-            };
-        }
-        window.location.hash = target.id;
-        if (window.kapitransHistory) {
-            window.kapitransHistory.add(vehicle.matricule, vehicle.marque, vehicle.proprietaire, vehicle.zone, vehicle.statut);
-        }
-        renderRecentSearches();
-        updateTodayStats();
+    function saveRecentSearches(entries) {
+        localStorage.setItem('kapitrans-recent-searches', JSON.stringify(entries));
     }
 
     function renderRecentSearches() {
         if (!recentList) return;
-        const history = readStored('kapitrans-history', []);
-        if (!Array.isArray(history)) throw new Error('L’historique doit être une liste valide.');
-        const agentHistory = window.kapitransHistory.forCurrentAgent(history);
-        recentList.replaceChildren();
-        agentHistory.slice().reverse().slice(0, 5).forEach(function (entry) {
-            const link = document.createElement('a');
-            link.href = '#state-search';
-            link.className = 'recent-item';
-            const left = document.createElement('span');
-            left.className = 'recent-item-left';
-            const plate = document.createElement('span');
-            plate.className = 'recent-matricule';
-            plate.textContent = entry.matricule || '—';
-            const time = document.createElement('span');
-            time.className = 'recent-time';
-            time.textContent = entry.date ? new Date(entry.date).toLocaleString('fr-FR') : '';
-            left.append(plate, time);
-            const badge = document.createElement('span');
-            badge.className = `status-badge status-${normalizeDocumentStatus(entry.statut)}`;
-            badge.textContent = entry.statut === 'conforme' ? 'Conforme' :
-                entry.statut === 'surveiller' ? 'À surveiller' : 'Non conforme';
-            link.append(left, badge);
-            recentList.appendChild(link);
+
+        const searches = readRecentSearches();
+        if (!searches.length) {
+            recentList.innerHTML = '<div class="recent-empty">Aucune recherche récente.</div>';
+            return;
+        }
+
+        recentList.innerHTML = '';
+        searches.slice(0, 5).forEach((entry) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'recent-item';
+            button.innerHTML = `
+                <div class="recent-item-left">
+                    <span class="recent-matricule">${entry.matricule || '—'}</span>
+                    <span class="recent-time">${entry.label || 'Recherche récente'}</span>
+                </div>
+                <span class="recent-status ${entry.status === 'non-conforme' ? 'recent-status-danger' : 'recent-status-safe'}">${entry.status === 'non-conforme' ? 'Critique' : 'OK'}</span>
+            `;
+            button.addEventListener('click', () => {
+                input.value = entry.matricule || '';
+                form.requestSubmit();
+            });
+            recentList.appendChild(button);
         });
     }
 
-    function updateTodayStats() {
-        const history = readStored('kapitrans-history', []);
-        if (!Array.isArray(history)) throw new Error('L’historique doit être une liste valide.');
-        const agentHistory = window.kapitransHistory.forCurrentAgent(history);
-        const today = new Date().toDateString();
-        const todaysEntries = agentHistory.filter(function (entry) {
-            return entry.date && new Date(entry.date).toDateString() === today;
-        });
-        const stats = document.querySelectorAll('.agent-stat-value');
-        const conforming = todaysEntries.filter(function (entry) { return entry.statut === 'conforme'; }).length;
-        const signaled = todaysEntries.length - conforming;
-        if (stats[0]) stats[0].textContent = String(todaysEntries.length);
-        if (stats[1]) stats[1].textContent = String(conforming);
-        if (stats[2]) stats[2].textContent = String(signaled);
+    if (!form || !input) return;
+
+    function showSection(section) {
+        if (resultConforme) resultConforme.style.display = section === resultConforme ? 'block' : 'none';
+        if (resultNonConforme) resultNonConforme.style.display = section === resultNonConforme ? 'block' : 'none';
     }
 
-    form.addEventListener('submit', function (event) {
+    function getDocumentIssueText(docItem) {
+        const statut = String(docItem.statut || '').trim().toLowerCase();
+        const label = docItem.type || 'Document';
+        if (statut === 'expire' || statut === 'expiré' || statut === 'expired') return `${label} — expiré`;
+        if (statut === 'bientot' || statut === 'bientôt' || statut === 'expiring') return `${label} — expire bientôt`;
+        if (statut === 'non-conforme' || statut === 'non conforme') return `${label} — non conforme`;
+        return `${label} — valide`;
+    }
+
+    function formatDocumentList(documents, vehicle) {
+        const container = document.querySelector('#result-conforme .result-doc-list, #result-non-conforme .result-doc-list');
+        if (!container) return;
+        container.innerHTML = '';
+
+        const problemDocuments = documents.filter((docItem) => {
+            const type = String(docItem.statut || '').trim().toLowerCase();
+            return type === 'expire' || type === 'expiré' || type === 'expired' || type === 'bientot' || type === 'bientôt' || type === 'expiring' || type === 'non-conforme' || type === 'non conforme';
+        });
+
+        const displayDocuments = problemDocuments.length ? problemDocuments : documents;
+
+        if (!displayDocuments.length) {
+            const empty = document.createElement('p');
+            empty.className = 'result-doc-empty';
+            empty.textContent = vehicle && vehicle.statut === 'non-conforme'
+                ? 'Aucun document problématique détecté pour ce véhicule.'
+                : 'Aucun document enregistré pour ce véhicule.';
+            container.appendChild(empty);
+            return;
+        }
+
+        displayDocuments.slice(0, 6).forEach((docItem) => {
+            const item = document.createElement('div');
+            item.className = 'result-doc-item';
+            const label = document.createElement('strong');
+            label.textContent = docItem.type || 'Document';
+            const value = document.createElement('span');
+            const dateText = docItem.dateExpiration ? new Date(docItem.dateExpiration).toLocaleDateString('fr-FR') : '—';
+            const issueText = getDocumentIssueText(docItem);
+            value.textContent = `${docItem.numero || '—'} • ${dateText} • ${issueText.replace(`${docItem.type || 'Document'} — `, '')}`;
+            item.append(label, value);
+            container.appendChild(item);
+        });
+    }
+
+    function setVehicleView(section, vehicle, documents = []) {
+        const matriculeEl = section.querySelector('.result-matricule');
+        const modelEl = section.querySelector('.result-vehicle-model');
+        const infoItems = section.querySelectorAll('.result-info-value');
+        const statusEl = section.querySelector('.result-status-badge');
+        const messageTitle = section.querySelector('.result-message strong');
+        const messageText = section.querySelector('.result-message p');
+
+        const isCritical = String(vehicle.statut || '').trim().toLowerCase() === 'non-conforme';
+
+        if (matriculeEl) matriculeEl.textContent = vehicle.matricule || '—';
+        if (modelEl) modelEl.textContent = [vehicle.marque, vehicle.modele].filter(Boolean).join(' ') || '—';
+
+        if (statusEl) {
+            const statusText = isCritical ? 'Critique' : (vehicle.statut === 'surveiller' ? 'À surveiller' : 'Conforme');
+            statusEl.innerHTML = `<span class="status-mark"><svg viewBox="0 0 24 24"><path d="${isCritical ? 'M12 3.5 21 18.5a1 1 0 0 1-.87 1.5H3.87A1 1 0 0 1 3 18.5L12 3.5Z M12 9v4M12 16.5h.01' : 'M5 12.5 9.5 17 19 7.5'}"/></svg></span>${statusText}`;
+            if (isCritical) {
+                statusEl.classList.add('result-status-critical');
+                statusEl.classList.remove('result-status-conforme');
+            } else {
+                statusEl.classList.remove('result-status-critical');
+            }
+        }
+
+        if (messageTitle) messageTitle.textContent = isCritical ? 'Véhicule non conforme' : (vehicle.statut === 'surveiller' ? 'Véhicule à surveiller' : 'Véhicule conforme');
+        if (messageText) messageText.textContent = isCritical
+            ? 'Le véhicule présente des documents ou éléments non conformes. Vérification requise.'
+            : (vehicle.statut === 'surveiller'
+                ? 'Des éléments nécessitent une vérification ou une action de contrôle.'
+                : 'Toutes les vérifications sont satisfaites pour ce véhicule.');
+
+        if (infoItems.length > 0) {
+            infoItems[0].textContent = vehicle.proprietaire || '—';
+        }
+        if (infoItems.length > 1) {
+            infoItems[1].textContent = vehicle.conducteur || vehicle.proprietaire || '—';
+        }
+
+        formatDocumentList(documents, vehicle);
+        showSection(section);
+    }
+
+    async function createAlertEntry(matricule, vehicle) {
+        const alerts = JSON.parse(localStorage.getItem('kapitrans-alerts') || '[]');
+        const agentName = getCurrentAgentName();
+        const entry = {
+            id: `alert-${Date.now()}`,
+            matricule,
+            marque: vehicle.marque || '',
+            proprietaire: vehicle.proprietaire || '',
+            type: 'controle',
+            gravite: 'critique',
+            message: `Véhicule signalé: ${matricule}`,
+            date: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
+            statut: 'nouveau',
+            agent: agentName
+        };
+
+        alerts.push(entry);
+        localStorage.setItem('kapitrans-alerts', JSON.stringify(alerts));
+
+        try {
+            await addDoc(collection(db, 'alerts'), {
+                ...entry,
+                agent: agentName,
+                date: new Date().toISOString(),
+                message: entry.message
+            });
+        } catch (error) {
+            console.warn('Impossible d’enregistrer l’alerte dans Firestore.', error);
+        }
+
+        return entry;
+    }
+
+    function bindActionButtons(vehicle) {
+        const verbalizeButton = resultNonConforme?.querySelector('.btn-danger');
+        const reportButton = resultNonConforme?.querySelector('[data-report-vehicle]');
+
+        if (verbalizeButton) {
+            verbalizeButton.onclick = function () {
+                const matricule = encodeURIComponent((vehicle && vehicle.matricule) || input.value.trim().toUpperCase());
+                window.location.href = 'agent-verbalize.html?matricule=' + matricule;
+            };
+        }
+
+        if (reportButton) {
+            reportButton.onclick = async function () {
+                await createAlertEntry(vehicle.matricule, vehicle);
+                if (window.kapitransToast) {
+                    window.kapitransToast('Signalement enregistré avec succès.', 'success');
+                } else {
+                    alert('✅ Signalement enregistré.');
+                }
+            };
+        }
+    }
+
+    async function loadVehicleByMatricule(matricule) {
+        try {
+            const snapshot = await getDocs(query(collection(db, 'vehicles'), where('matricule', '==', matricule)));
+            if (snapshot.empty) return null;
+            const vehicle = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() };
+            return vehicle;
+        } catch (error) {
+            console.error('Erreur de recherche Firestore :', error);
+            return null;
+        }
+    }
+
+    async function loadDocumentsForVehicle(matricule) {
+        try {
+            const snapshot = await getDocs(collection(db, 'documents'));
+            return snapshot.docs
+                .map((docItem) => ({ id: docItem.id, ...docItem.data() }))
+                .filter((docItem) => String(docItem.matricule || '').toUpperCase() === matricule);
+        } catch (error) {
+            console.error('Erreur de chargement des documents :', error);
+            return [];
+        }
+    }
+
+    function addRecentSearch(matricule, status) {
+        const entries = readRecentSearches();
+        const nextEntries = [
+            { matricule, status, label: new Date().toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) },
+            ...entries.filter((entry) => entry.matricule && entry.matricule !== matricule)
+        ].slice(0, 5);
+        saveRecentSearches(nextEntries);
+        renderRecentSearches();
+    }
+
+    form.addEventListener('submit', async function (event) {
         event.preventDefault();
         const matricule = input.value.trim().toUpperCase();
         if (!matricule) {
             input.focus();
             return;
         }
-        try {
-            const vehicle = makeVehicle(matricule);
-            if (!vehicle) {
-                showSearchNotification('Véhicule non trouvé : ' + matricule);
-                return;
-            }
-            renderVehicle(vehicle);
-        } catch (error) {
-            console.error('Impossible de charger le véhicule.', error);
-            showSearchNotification('Impossible de lire les données du véhicule. Vérifiez le stockage local.');
+
+        const vehicle = await loadVehicleByMatricule(matricule);
+        if (!vehicle) {
+            alert('❌ Véhicule non trouvé : ' + matricule);
+            showSection(resultConforme && resultConforme.style.display !== 'none' ? resultConforme : resultNonConforme);
+            return;
         }
+
+        const documents = await loadDocumentsForVehicle(matricule);
+        const section = String(vehicle.statut || '').trim().toLowerCase() === 'conforme' ? resultConforme : resultNonConforme;
+        if (!section) {
+            alert('❌ Section de résultat introuvable sur la page.');
+            return;
+        }
+
+        addRecentSearch(matricule, String(vehicle.statut || '').trim().toLowerCase());
+        bindActionButtons(vehicle);
+        setVehicleView(section, vehicle, documents);
     });
 
-    function showSearchNotification(message, type) {
-        window.kapitransToast(message, type || 'error');
-    }
-
-    resultSections.forEach(function (section) {
-        const docs = section.querySelector('.result-doc-list');
-        if (docs) docs.replaceChildren();
-        const alerts = section.querySelector('.result-alerts');
-        if (alerts) alerts.replaceChildren();
-        const infoValues = section.querySelectorAll('.result-info-value');
-        infoValues.forEach(function (element) { element.textContent = '—'; });
-        setText('.result-matricule', '—', section);
-        setText('.result-vehicle-model', '—', section);
-    });
     renderRecentSearches();
-    updateTodayStats();
 });

@@ -5205,10 +5205,17 @@ body:not(.login-body):not(.admin-body):not(.register-body) > * {
     border: 1px solid #2a3741;
 }
 
+.kapitrans-popup .leaflet-popup-content {
+    max-height: min(360px, calc(100vh - 64px)) !important;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
 .map-popup {
     display: grid;
-    gap: 10px;
-    min-width: 220px;
+    width: min(280px, calc(100vw - 88px));
+    min-width: 0;
+    gap: 8px;
 }
 
 .map-popup-header {
@@ -5238,6 +5245,8 @@ body:not(.login-body):not(.admin-body):not(.register-body) > * {
 
 .map-popup-body p {
     margin: 0;
+    overflow-wrap: anywhere;
+    line-height: 1.45;
 }
 
 .map-popup-actions {

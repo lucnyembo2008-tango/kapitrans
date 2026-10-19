@@ -1,341 +1,343 @@
-// ============================================================
-// VEHICLES — KAPITRANS
-// ============================================================
-// Ce fichier affiche la liste des véhicules.
-// Tous les véhicules sont chargés depuis localStorage.
-// ============================================================
+import { db } from './firebase.js';
+import { collection, deleteDoc, doc, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', function () {
-
-    // ============================================================
-    // 1. RÉCUPÉRER LE TABLEAU
-    // ============================================================
-
     const tbody = document.querySelector('.data-table tbody');
     if (!tbody) return;
-    tbody.replaceChildren();
-
-    // ============================================================
-    // 3. RÉCUPÉRER LES VÉHICULES CRÉÉS
-    // ============================================================
-
-    function readStoredValue(key, fallback) {
-        return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
-    }
-
-    async function geocodeVehicleZone(zone, vehicle) {
-        const province = String(vehicle.province || 'kinshasa').replace(/(^|-)([a-z])/g, function (match, separator, letter) {
-            return separator + letter.toUpperCase();
-        });
-        const query = [zone, vehicle.ville, province, 'République démocratique du Congo'].filter(Boolean).join(', ');
-        const params = new URLSearchParams({
-            q: query,
-            format: 'jsonv2',
-            limit: '1',
-            countrycodes: 'cd'
-        });
-        const response = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, {
-            headers: { 'Accept-Language': 'fr' }
-        });
-        if (!response.ok) throw new Error(`Géocodage refusé (${response.status}).`);
-        const results = await response.json();
-        const latitude = Number(results[0]?.lat);
-        const longitude = Number(results[0]?.lon);
-        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-            throw new Error('Zone introuvable.');
-        }
-        return { latitude: latitude, longitude: longitude };
-    }
-
-    function getAllVehicles() {
-        const stored = readStoredValue('kapitrans-vehicles', {});
-        if (!stored || Array.isArray(stored) || typeof stored !== 'object') {
-            throw new Error('Le registre des véhicules doit contenir un objet.');
-        }
-        const documents = readStoredValue('kapitrans-documents', []);
-        if (!Array.isArray(documents)) throw new Error('Le registre des documents doit contenir une liste.');
-        return Object.entries(stored).map(function ([storageKey, vehicle]) {
-            const matricule = vehicle.matricule || storageKey;
-            const relatedStatuses = documents
-                .filter(documentRecord => String(documentRecord.matricule || '').toUpperCase() === String(matricule).toUpperCase())
-                .map(getDocumentStatus);
-            const embeddedStatuses = Object.values(vehicle.documents || {})
-                .filter(documentRecord => documentRecord && (documentRecord.numero || documentRecord.expiration || documentRecord.dateExpiration))
-                .map(getDocumentStatus);
-            const statuses = [vehicle.statut || 'conforme', ...relatedStatuses, ...embeddedStatuses];
-            const status = statuses.includes('non-conforme') ? 'non-conforme' :
-                statuses.includes('surveiller') ? 'surveiller' : 'conforme';
-            return {
-                matricule: matricule,
-                marque: [vehicle.marque, vehicle.modele].filter(Boolean).join(' '),
-                proprietaire: typeof vehicle.proprietaire === 'string' ? vehicle.proprietaire : vehicle.proprietaire?.nom || '',
-                categorie: vehicle.categorie || '',
-                statut: status,
-                province: vehicle.province || 'kinshasa',
-                ville: vehicle.ville || '',
-                zone: vehicle.zone || '',
-                lat: vehicle.lat == null ? '' : String(vehicle.lat),
-                lng: vehicle.lng == null ? '' : String(vehicle.lng),
-                zoneGeocodeKey: vehicle.zoneGeocodeKey || '',
-                _key: storageKey,
-                _source: 'stored'
-            };
-        });
-    }
-
-    function getDocumentStatus(documentRecord) {
-        const expiration = documentRecord.dateExpiration || documentRecord.expiration;
-        if (expiration) {
-            const date = String(expiration);
-            const expiry = new Date(date + (date.length === 10 ? 'T23:59:59' : ''));
-            if (!Number.isNaN(expiry.getTime())) {
-                const days = Math.ceil((expiry.getTime() - Date.now()) / 86400000);
-                return days < 0 ? 'non-conforme' : days < 30 ? 'surveiller' : 'conforme';
-            }
-        }
-        if (documentRecord.statut === 'expire') return 'non-conforme';
-        if (documentRecord.statut === 'bientot') return 'surveiller';
-        if (documentRecord.statut === 'non-conforme' || documentRecord.statut === 'surveiller') return documentRecord.statut;
-        return documentRecord.statut === 'valide' || documentRecord.statut === 'conforme' ? 'conforme' : 'surveiller';
-    }
-
-    // ============================================================
-    // 4. FORMATER LE STATUT
-    // ============================================================
-
-    function getStatusBadge(statut) {
-        if (statut === 'conforme') {
-            return '<span class="status-badge status-conforme"><svg class="status-dot-svg" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5"/></svg>Conforme</span>';
-        }
-        if (statut === 'surveiller') {
-            return '<span class="status-badge status-surveiller"><svg class="status-dot-svg" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5"/></svg>À surveiller</span>';
-        }
-        if (statut === 'non-conforme') {
-            return '<span class="status-badge status-non-conforme"><svg class="status-dot-svg" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5"/></svg>Non conforme</span>';
-        }
-        return '<span class="status-badge">' + escapeHtml(statut || '—') + '</span>';
-    }
-
-    function escapeHtml(value) {
-        return String(value).replace(/[&<>"']/g, function (character) {
-            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character];
-        });
-    }
-
-    // ============================================================
-    // 5. AFFICHER LES VÉHICULES
-    // ============================================================
-
-    function renderVehicles() {
-        const allVehicles = getAllVehicles();
-        tbody.innerHTML = '';
-        const statusCounts = [
-            allVehicles.length,
-            allVehicles.filter(vehicle => vehicle.statut === 'conforme').length,
-            allVehicles.filter(vehicle => vehicle.statut === 'surveiller').length,
-            allVehicles.filter(vehicle => vehicle.statut === 'non-conforme').length
-        ];
-        document.querySelectorAll('.vehicles-stats-grid .stat-number').forEach(function (element, index) {
-            element.textContent = String(statusCounts[index] || 0);
-        });
-        if (allVehicles.length === 0) {
-            const row = tbody.insertRow();
-            const cell = row.insertCell();
-            cell.colSpan = 6;
-            cell.textContent = 'Aucun véhicule enregistré.';
-            return;
-        }
-
-        allVehicles.forEach(function (v) {
-            const tr = document.createElement('tr');
-            tr.dataset.vehicleKey = v._key;
-            tr.dataset.source = v._source;
-
-            tr.innerHTML = `
-                <td><strong class="matricule">${escapeHtml(v.matricule)}</strong></td>
-                <td>${escapeHtml(v.marque)}</td>
-                <td>${escapeHtml(v.proprietaire)}</td>
-                <td>${escapeHtml(v.categorie)}</td>
-                <td>${getStatusBadge(v.statut)}</td>
-                <td class="actions-cell">
-                    <button class="btn-action btn-view" type="button" title="Voir" aria-label="Voir">${window.kapitransIcon('view').outerHTML}</button>
-                    <button class="btn-action btn-edit" type="button" title="Modifier" aria-label="Modifier">${window.kapitransIcon('edit').outerHTML}</button>
-                    <button class="btn-action btn-map" type="button" title="Mapper" data-matricule="${escapeHtml(v.matricule)}" aria-label="Mapper">${window.kapitransIcon('map').outerHTML}</button>
-                    <button class="btn-action btn-delete" type="button" title="Supprimer" aria-label="Supprimer">${window.kapitransIcon('delete').outerHTML}</button>
-                </td>
-            `;
-
-            tbody.appendChild(tr);
-        });
-    }
-
-    // ============================================================
-    // 6. RECHERCHE ET FILTRES
-    // ============================================================
 
     const searchInput = document.querySelector('.search-input');
-    const filterStatut = document.querySelectorAll('.filter-select')[0];
-    const filterCategorie = document.querySelectorAll('.filter-select')[1];
+    const filters = document.querySelectorAll('.filter-select');
+    const filterStatus = filters[0];
+    const filterCategory = filters[1];
+    const counters = document.querySelectorAll('.vehicles-stats-grid .stat-number');
+    let vehicles = [];
 
-    function filterVehicles() {
-        const search = (searchInput?.value || '').toLowerCase().trim();
-        const statut = filterStatut?.value || '';
-        const categorie = filterCategorie?.value || '';
-
-        const rows = tbody.querySelectorAll('tr');
-
-        rows.forEach(function (row) {
-            const cells = row.querySelectorAll('td');
-            const matricule = (cells[0]?.textContent || '').toLowerCase();
-            const marque = (cells[1]?.textContent || '').toLowerCase();
-            const proprietaire = (cells[2]?.textContent || '').toLowerCase();
-            const catText = (cells[3]?.textContent || '').toLowerCase();
-            const statutText = (cells[4]?.textContent || '').toLowerCase();
-
-            const matchSearch = !search ||
-                matricule.includes(search) ||
-                marque.includes(search) ||
-                proprietaire.includes(search);
-
-            const matchStatut = !statut || statutText.includes(statut.toLowerCase());
-            const matchCategorie = !categorie || catText.includes(categorie.toLowerCase());
-
-            if (matchSearch && matchStatut && matchCategorie) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
+    function updateCounters() {
+        const values = [
+            vehicles.length,
+            vehicles.filter((vehicle) => vehicle.statut === 'conforme').length,
+            vehicles.filter((vehicle) => vehicle.statut === 'surveiller').length,
+            vehicles.filter((vehicle) => vehicle.statut === 'non-conforme').length
+        ];
+        counters.forEach((counter, index) => {
+            counter.textContent = String(values[index] || 0);
         });
     }
 
-    if (searchInput) {
-        searchInput.addEventListener('input', filterVehicles);
+    function filterVehicles() {
+        const search = (searchInput?.value || '').trim().toLowerCase();
+        const status = filterStatus?.value || '';
+        const category = filterCategory?.value || '';
+
+        tbody.querySelectorAll('tr[data-vehicle-id]').forEach((row) => {
+            const vehicle = vehicles.find((entry) => entry.id === row.dataset.vehicleId);
+            if (!vehicle) return;
+            const searchableText = [
+                vehicle.matricule,
+                vehicle.marque,
+                vehicle.modele,
+                vehicle.proprietaire
+            ].join(' ').toLowerCase();
+            const matchesSearch = !search || searchableText.includes(search);
+            const matchesStatus = !status || vehicle.statut === status;
+            const matchesCategory = !category || vehicle.categorie === category;
+            row.hidden = !(matchesSearch && matchesStatus && matchesCategory);
+        });
     }
-    if (filterStatut) {
-        filterStatut.addEventListener('change', filterVehicles);
+
+    function appendActionButton(container, vehicle, action, label, className, icon) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = `btn-action ${className}`;
+        button.dataset.action = action;
+        button.dataset.vehicleId = vehicle.id;
+        button.title = label;
+        button.setAttribute('aria-label', label);
+        button.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${icon}</svg>`;
+        container.appendChild(button);
     }
-    if (filterCategorie) {
-        filterCategorie.addEventListener('change', filterVehicles);
+
+    function createVehicleRow(vehicle) {
+        const statusLabels = {
+            conforme: ['status-conforme', 'Conforme'],
+            surveiller: ['status-surveiller', 'À surveiller'],
+            'non-conforme': ['status-non-conforme', 'Non conforme']
+        };
+        const [statusClass, statusLabel] = statusLabels[vehicle.statut] || statusLabels.conforme;
+        const row = document.createElement('tr');
+        row.dataset.vehicleId = vehicle.id;
+
+        const matriculeCell = document.createElement('td');
+        const matricule = document.createElement('strong');
+        matricule.className = 'matricule';
+        matricule.textContent = vehicle.matricule || '—';
+        matriculeCell.appendChild(matricule);
+
+        const makeCell = document.createElement('td');
+        makeCell.textContent = [vehicle.marque, vehicle.modele].filter(Boolean).join(' ') || '—';
+
+        const ownerCell = document.createElement('td');
+        ownerCell.textContent = vehicle.proprietaire || '—';
+
+        const categoryCell = document.createElement('td');
+        categoryCell.textContent = vehicle.categorie || '—';
+
+        const statusCell = document.createElement('td');
+        const statusBadge = document.createElement('span');
+        statusBadge.className = `status-badge ${statusClass}`;
+        statusBadge.textContent = statusLabel;
+        statusCell.appendChild(statusBadge);
+
+        const actionsCell = document.createElement('td');
+        actionsCell.className = 'actions-cell';
+        appendActionButton(actionsCell, vehicle, 'view', 'Voir', 'btn-view',
+            '<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>');
+        appendActionButton(actionsCell, vehicle, 'edit', 'Modifier', 'btn-edit',
+            '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4Z"/>');
+        appendActionButton(actionsCell, vehicle, 'map', 'Mapper', 'btn-map',
+            '<path d="M9 18 3 20V6l6-2 6 2 6-2v14l-6 2-6-2Zm0-14v14m6-12v14"/>');
+        appendActionButton(actionsCell, vehicle, 'delete', 'Supprimer', 'btn-delete',
+            '<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/><path d="M10 11v6M14 11v6"/>');
+
+        row.append(matriculeCell, makeCell, ownerCell, categoryCell, statusCell, actionsCell);
+        return row;
     }
 
-    tbody.addEventListener('click', function (event) {
-        const button = event.target.closest('.btn-action');
-        if (!button) return;
+    function closeDialog(dialog) {
+        if (dialog.open) dialog.close();
+    }
 
-        const row = button.closest('tr');
-        const vehicle = getAllVehicles().find(item => item._key === row?.dataset.vehicleKey && item._source === row?.dataset.source);
-        if (!vehicle) return;
+    function addDialogHeader(dialog, title) {
+        const header = document.createElement('div');
+        header.className = 'user-dialog-header';
+        const heading = document.createElement('h2');
+        heading.textContent = title;
+        const closeButton = document.createElement('button');
+        closeButton.type = 'button';
+        closeButton.className = 'user-dialog-close';
+        closeButton.setAttribute('aria-label', 'Fermer');
+        closeButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>';
+        closeButton.addEventListener('click', () => closeDialog(dialog));
+        header.append(heading, closeButton);
+        dialog.appendChild(header);
+    }
 
-        if (button.classList.contains('btn-map')) {
-            window.location.href = 'admin-map.html?matricule=' + encodeURIComponent(vehicle.matricule);
-            return;
-        }
+    function showVehicleDialog(vehicle, editing) {
+        const dialog = document.createElement('dialog');
+        dialog.className = 'user-dialog';
+        addDialogHeader(dialog, editing ? 'Modifier le véhicule' : 'Détails du véhicule');
 
-        if (button.classList.contains('btn-view')) {
-            window.kapitransRecordDialog('Détails du véhicule', [
-                { label: 'Matricule', value: vehicle.matricule },
-                { label: 'Marque / modèle', value: vehicle.marque },
-                { label: 'Propriétaire', value: vehicle.proprietaire },
-                { label: 'Catégorie', value: vehicle.categorie },
-                { label: 'Statut', value: vehicle.statut }
-            ]);
-            return;
-        }
-
-        if (button.classList.contains('btn-edit')) {
-            window.kapitransRecordDialog('Modifier le véhicule', [
-                { name: 'marque', label: 'Marque / modèle', value: vehicle.marque, required: true },
-                { name: 'proprietaire', label: 'Propriétaire', value: vehicle.proprietaire },
-                { name: 'categorie', label: 'Catégorie', value: vehicle.categorie },
-                { name: 'zone', label: 'Zone / quartier', value: vehicle.zone },
-                {
-                    name: 'statut', label: 'Statut', value: vehicle.statut, options: [
-                        { value: 'conforme', label: 'Conforme' },
-                        { value: 'surveiller', label: 'À surveiller' },
-                        { value: 'non-conforme', label: 'Non conforme' }
-                    ]
-                }
-            ], async function (values) {
-                const zone = values.zone.trim();
-                const zoneChanged = zone !== String(vehicle.zone || '').trim();
-                const hasCoordinates = vehicle.lat !== '' && vehicle.lng !== '' &&
-                    Number.isFinite(Number(vehicle.lat)) && Number.isFinite(Number(vehicle.lng));
-                const locationKey = [zone, vehicle.ville, vehicle.province].map(function (part) {
-                    return String(part || '').trim().toLowerCase();
-                }).join('|');
-                let location = null;
-                if (zone && (zoneChanged || !hasCoordinates || vehicle.zoneGeocodeKey !== locationKey)) {
-                    window.kapitransToast('Recherche de la zone sur la carte…', 'info', 'location');
-                    try {
-                        location = await geocodeVehicleZone(zone, vehicle);
-                    } catch (error) {
-                        console.error('Impossible de localiser la zone du véhicule.', error);
-                        window.kapitransToast('Zone introuvable ou service indisponible. Vérifiez le nom et réessayez.', 'error');
-                        return false;
-                    }
-                }
-                if (vehicle._source === 'stored') {
-                    const stored = readStoredValue('kapitrans-vehicles', {});
-                    const record = stored[vehicle._key];
-                    if (!record) return false;
-                    record.marque = values.marque.trim();
-                    record.modele = '';
-                    record.proprietaire = { ...record.proprietaire, nom: values.proprietaire.trim() };
-                    record.categorie = values.categorie.trim();
-                    record.statut = values.statut;
-                    record.zone = zone;
-                    if (location) {
-                        record.lat = location.latitude;
-                        record.lng = location.longitude;
-                        record.zoneGeocodeKey = locationKey;
-                    }
-                    localStorage.setItem('kapitrans-vehicles', JSON.stringify(stored));
-                } else {
-                    const overrides = readStoredValue('kapitrans-vehicle-overrides', {});
-                    overrides[vehicle._key] = {
-                        ...overrides[vehicle._key],
-                        marque: values.marque.trim(),
-                        proprietaire: values.proprietaire.trim(),
-                        categorie: values.categorie.trim(),
-                        statut: values.statut,
-                        zone: zone,
-                        ...(location ? {
-                            lat: location.latitude,
-                            lng: location.longitude,
-                            zoneGeocodeKey: locationKey
-                        } : {})
-                    };
-                    localStorage.setItem('kapitrans-vehicle-overrides', JSON.stringify(overrides));
-                }
-                renderVehicles();
-                filterVehicles();
-                if (location) window.kapitransToast('Zone enregistrée et position du véhicule mise à jour.', 'success', 'location');
+        if (!editing) {
+            const details = document.createElement('dl');
+            details.className = 'user-details';
+            const fields = [
+                ['Matricule', vehicle.matricule],
+                ['VIN / numéro de châssis', vehicle.vin],
+                ['Marque / modèle', [vehicle.marque, vehicle.modele].filter(Boolean).join(' ')],
+                ['Année', vehicle.annee],
+                ['Couleur', vehicle.couleur],
+                ['Catégorie', vehicle.categorie],
+                ['Type', vehicle.type],
+                ['Capacité', vehicle.capacite],
+                ['Usage', vehicle.usage],
+                ['Propriétaire', vehicle.proprietaire],
+                ['Province', vehicle.province],
+                ['Ville', vehicle.ville],
+                ['Zone / quartier', vehicle.zone],
+                ['Latitude', vehicle.lat],
+                ['Longitude', vehicle.lng],
+                ['Statut', vehicle.statut]
+            ];
+            fields.forEach(([label, value]) => {
+                const item = document.createElement('div');
+                const term = document.createElement('dt');
+                term.textContent = label;
+                const description = document.createElement('dd');
+                description.textContent = value === undefined || value === null || value === '' ? '—' : String(value);
+                item.append(term, description);
+                details.appendChild(item);
             });
-            return;
+            dialog.appendChild(details);
+        } else {
+            const form = document.createElement('form');
+            form.className = 'user-edit-form';
+            const fields = [
+                ['matricule', 'Matricule', 'text', true],
+                ['vin', 'VIN / numéro de châssis', 'text', true],
+                ['marque', 'Marque', 'text', true],
+                ['modele', 'Modèle', 'text', true],
+                ['annee', 'Année', 'number', false],
+                ['couleur', 'Couleur', 'text', false],
+                ['categorie', 'Catégorie', 'select', true],
+                ['type', 'Type', 'text', false],
+                ['capacite', 'Capacité (passagers)', 'number', false],
+                ['usage', 'Usage', 'select-usage', false],
+                ['proprietaire', 'Propriétaire', 'text', false],
+                ['province', 'Province', 'text', false],
+                ['ville', 'Ville', 'text', false],
+                ['zone', 'Zone / quartier', 'text', false],
+                ['lat', 'Latitude', 'number', false],
+                ['lng', 'Longitude', 'number', false],
+                ['statut', 'Statut', 'select-status', true]
+            ];
+            const selectOptions = {
+                categorie: [
+                    ['', 'Sélectionner une catégorie'],
+                    ['transport', 'Transport en commun'],
+                    ['prive', 'Véhicule privé'],
+                    ['camion', 'Camion'],
+                    ['moto', 'Moto'],
+                    ['taxi', 'Taxi']
+                ],
+                usage: [
+                    ['', 'Sélectionner'],
+                    ['public', 'Public'],
+                    ['prive', 'Privé'],
+                    ['commercial', 'Commercial']
+                ],
+                statut: [
+                    ['conforme', 'Conforme'],
+                    ['surveiller', 'À surveiller'],
+                    ['non-conforme', 'Non conforme']
+                ]
+            };
+
+            fields.forEach(([name, labelText, type, required]) => {
+                const label = document.createElement('label');
+                label.textContent = labelText;
+                let input;
+                if (type.startsWith('select')) {
+                    input = document.createElement('select');
+                    const optionKey = type === 'select-usage' ? 'usage' :
+                        type === 'select-status' ? 'statut' : 'categorie';
+                    selectOptions[optionKey].forEach(([value, text]) => {
+                        const option = document.createElement('option');
+                        option.value = value;
+                        option.textContent = text;
+                        input.appendChild(option);
+                    });
+                } else {
+                    input = document.createElement('input');
+                    input.type = type;
+                    if (name === 'lat' || name === 'lng') input.step = 'any';
+                }
+                input.name = name;
+                input.required = required;
+                input.value = vehicle[name] ?? '';
+                label.appendChild(input);
+                form.appendChild(label);
+            });
+
+            const error = document.createElement('p');
+            error.className = 'vehicle-edit-error';
+            error.setAttribute('role', 'alert');
+            form.appendChild(error);
+
+            const actions = document.createElement('div');
+            actions.className = 'user-dialog-actions';
+            const cancel = document.createElement('button');
+            cancel.type = 'button';
+            cancel.className = 'btn-secondary';
+            cancel.textContent = 'Annuler';
+            cancel.addEventListener('click', () => closeDialog(dialog));
+            const save = document.createElement('button');
+            save.type = 'submit';
+            save.className = 'btn-primary';
+            save.textContent = 'Enregistrer';
+            actions.append(cancel, save);
+            form.appendChild(actions);
+
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                save.disabled = true;
+                error.textContent = '';
+                const values = Object.fromEntries(new FormData(form).entries());
+                for (const field of ['annee', 'capacite', 'lat', 'lng']) {
+                    if (values[field] !== '') values[field] = Number(values[field]);
+                    else if (field === 'lat' || field === 'lng') values[field] = null;
+                }
+                values.matricule = values.matricule.trim().toUpperCase();
+                values.proprietaire = values.proprietaire.trim();
+
+                try {
+                    await updateDoc(doc(db, 'vehicles', vehicle.id), values);
+                    closeDialog(dialog);
+                    dialog.remove();
+                    await renderVehicles();
+                } catch (updateError) {
+                    console.error('Impossible de modifier le véhicule.', updateError);
+                    error.textContent = 'La modification a échoué. Vérifiez vos droits et réessayez.';
+                    save.disabled = false;
+                }
+            });
+            dialog.appendChild(form);
         }
 
-        if (button.classList.contains('btn-delete')) {
-            if (!window.confirm(`Supprimer le véhicule ${vehicle.matricule} ?`)) return;
+        dialog.addEventListener('click', (event) => {
+            if (event.target === dialog) closeDialog(dialog);
+        });
+        document.body.appendChild(dialog);
+        dialog.addEventListener('close', () => dialog.remove(), { once: true });
+        dialog.showModal();
+    }
 
-            if (vehicle._source === 'stored') {
-                const stored = readStoredValue('kapitrans-vehicles', {});
-                delete stored[vehicle._key];
-                localStorage.setItem('kapitrans-vehicles', JSON.stringify(stored));
-            } else {
-                const hidden = readStoredValue('kapitrans-vehicle-hidden', []);
-                if (!hidden.includes(vehicle._key)) hidden.push(vehicle._key);
-                localStorage.setItem('kapitrans-vehicle-hidden', JSON.stringify(hidden));
+    async function renderVehicles() {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #94a3b8;">Chargement...</td></tr>';
+        try {
+            const querySnapshot = await getDocs(collection(db, 'vehicles'));
+            vehicles = querySnapshot.docs.map((vehicleDoc) => ({
+                id: vehicleDoc.id,
+                ...vehicleDoc.data()
+            }));
+            updateCounters();
+            tbody.replaceChildren();
+
+            if (vehicles.length === 0) {
+                const row = tbody.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = 6;
+                cell.style.cssText = 'text-align: center; padding: 2rem; color: #94a3b8;';
+                cell.textContent = 'Aucun véhicule enregistré.';
+                return;
             }
 
-            renderVehicles();
+            vehicles.forEach((vehicle) => tbody.appendChild(createVehicleRow(vehicle)));
             filterVehicles();
+        } catch (error) {
+            console.error('Erreur Firebase lors du chargement des véhicules :', error);
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #fca5a5;">Erreur de chargement.</td></tr>';
+        }
+    }
+
+    tbody.addEventListener('click', async (event) => {
+        const button = event.target.closest('button[data-action]');
+        if (!button) return;
+        const vehicle = vehicles.find((entry) => entry.id === button.dataset.vehicleId);
+        if (!vehicle) return;
+
+        if (button.dataset.action === 'view') {
+            showVehicleDialog(vehicle, false);
+        } else if (button.dataset.action === 'edit') {
+            showVehicleDialog(vehicle, true);
+        } else if (button.dataset.action === 'map') {
+            window.location.href = `admin-map.html?matricule=${encodeURIComponent(vehicle.matricule || '')}`;
+        } else if (button.dataset.action === 'delete') {
+            if (!window.confirm(`Supprimer le véhicule ${vehicle.matricule || ''} ?`)) return;
+            button.disabled = true;
+            try {
+                await deleteDoc(doc(db, 'vehicles', vehicle.id));
+                await renderVehicles();
+            } catch (error) {
+                console.error('Impossible de supprimer le véhicule.', error);
+                window.alert('La suppression a échoué. Vérifiez vos droits et réessayez.');
+                button.disabled = false;
+            }
         }
     });
 
-    // ============================================================
-    // 7. INITIALISATION
-    // ============================================================
+    searchInput?.addEventListener('input', filterVehicles);
+    filterStatus?.addEventListener('change', filterVehicles);
+    filterCategory?.addEventListener('change', filterVehicles);
 
     renderVehicles();
-
 });

@@ -1,277 +1,197 @@
-// ============================================================
-// CESSIONS — KAPITRANS
-// ============================================================
-// Ce fichier affiche la liste des cessions.
-// Toutes les cessions sont chargées depuis localStorage.
-// ============================================================
+import { db } from './firebase.js';
+import { collection, deleteDoc, doc, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-document.addEventListener('DOMContentLoaded', function () {
-
-    // ============================================================
-    // 1. RÉCUPÉRER LE TABLEAU
-    // ============================================================
-
+document.addEventListener('DOMContentLoaded', async function () {
     const tbody = document.querySelector('.data-table tbody');
     if (!tbody) return;
-    tbody.replaceChildren();
 
-    // ============================================================
-    // 3. RÉCUPÉRER LES CESSIONS CRÉÉES
-    // ============================================================
-
-    function readStoredValue(key, fallback) {
-        return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
-    }
-
-    function getAllCessions() {
-        const statusOverrides = readStoredValue('kapitrans-cession-statuses', {});
-        const storedCessions = readStoredValue('kapitrans-cessions', []);
-        if (!Array.isArray(storedCessions)) throw new Error('Le registre des cessions doit contenir une liste.');
-        return storedCessions.map(function (cession, index) {
-            return {
-                matricule: cession.matricule,
-                ancienProprietaire: cession.ancienProprietaire?.nom || '—',
-                nouveauProprietaire: `${cession.nouveauProprietaire?.nom || ''} ${cession.nouveauProprietaire?.prenom || ''}`.trim(),
-                date: formatDate(cession.dateCession),
-                prix: cession.prix ? formatPrice(cession.prix) + ' FC' : '—',
-                statut: cession.statut || statusOverrides[cession.matricule] || 'attente',
-                _key: String(index),
-                _source: 'stored'
-            };
-        });
-    }
-
-    // ============================================================
-    // 4. FORMATER LA DATE
-    // ============================================================
+    const searchInput = document.querySelector('.search-input');
+    const filters = document.querySelectorAll('.filter-select');
+    const filterStatus = filters[0];
+    const counters = document.querySelectorAll('.users-stats-grid .stat-number');
+    let cessions = [];
 
     function formatDate(dateStr) {
-        if (!dateStr) return '';
+        if (!dateStr) return '—';
         const parts = dateStr.split('-');
-        if (parts.length === 3) {
-            return parts[2] + '/' + parts[1] + '/' + parts[0];
-        }
+        if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
         return dateStr;
     }
 
-    // ============================================================
-    // 5. FORMATER LE PRIX
-    // ============================================================
-
-    function formatPrice(price) {
-        const num = parseInt(price, 10);
-        if (isNaN(num)) return price;
-        return num.toLocaleString('fr-FR').replace(/,/g, ' ');
-    }
-
-    // ============================================================
-    // 6. BADGE DE STATUT
-    // ============================================================
-
     function getStatusBadge(statut) {
-        if (statut === 'validee') {
-            return '<span class="status-badge status-active">Validée</span>';
-        }
-        if (statut === 'attente') {
-            return '<span class="status-badge status-inactive">En attente</span>';
-        }
-        if (statut === 'refusee') {
-            return '<span class="status-badge status-inactive">Refusée</span>';
-        }
-        return '<span class="status-badge">' + escapeHtml(statut || '—') + '</span>';
+        const statusMap = {
+            validee: ['status-active', 'Validée'],
+            attente: ['status-inactive', 'En attente'],
+            refusee: ['status-inactive', 'Refusée']
+        };
+        const [className, label] = statusMap[statut] || ['', statut || '—'];
+        const badge = document.createElement('span');
+        badge.className = `status-badge ${className}`;
+        badge.textContent = label;
+        return badge;
     }
 
-    function escapeHtml(value) {
-        return String(value).replace(/[&<>"']/g, function (character) {
-            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character];
-        });
-    }
-
-    // ============================================================
-    // 7. AFFICHER LES CESSIONS
-    // ============================================================
-
-    function renderCessions() {
-        const allCessions = getAllCessions();
-        tbody.innerHTML = '';
-        const counts = [
-            allCessions.length,
-            allCessions.filter(cession => cession.statut === 'validee').length,
-            allCessions.filter(cession => cession.statut === 'attente').length,
-            allCessions.filter(cession => cession.statut === 'refusee').length
+    function updateCounters() {
+        const values = [
+            cessions.length,
+            cessions.filter((item) => item.statut === 'validee').length,
+            cessions.filter((item) => item.statut === 'attente').length,
+            cessions.filter((item) => item.statut === 'refusee').length
         ];
-        document.querySelectorAll('.users-stats-grid .stat-number').forEach(function (element, index) {
-            element.textContent = String(counts[index] || 0);
-        });
-        if (allCessions.length === 0) {
-            const row = tbody.insertRow();
-            const cell = row.insertCell();
-            cell.colSpan = 7;
-            cell.textContent = 'Aucune cession enregistrée.';
-            return;
-        }
-
-        allCessions.forEach(function (c) {
-            const tr = document.createElement('tr');
-            tr.dataset.cessionKey = c._key;
-            tr.dataset.source = c._source;
-            const actionButtons = c.statut === 'attente'
-                ? `<button class="btn-action btn-approve" type="button" title="Valider" aria-label="Valider">${window.kapitransIcon('success').outerHTML}</button>
-                    <button class="btn-action btn-reject" type="button" title="Refuser" aria-label="Refuser">${window.kapitransIcon('delete').outerHTML}</button>`
-                : `<button class="btn-action btn-edit" type="button" title="Modifier" aria-label="Modifier">${window.kapitransIcon('edit').outerHTML}</button>`;
-
-            tr.innerHTML = `
-                <td><strong>${escapeHtml(c.matricule)}</strong></td>
-                <td>${escapeHtml(c.ancienProprietaire)}</td>
-                <td>${escapeHtml(c.nouveauProprietaire)}</td>
-                <td>${escapeHtml(c.date)}</td>
-                <td>${escapeHtml(c.prix)}</td>
-                <td>${getStatusBadge(c.statut)}</td>
-                <td class="actions-cell">
-                    <button class="btn-action btn-view" type="button" title="Voir" aria-label="Voir">${window.kapitransIcon('view').outerHTML}</button>
-                    ${actionButtons}
-                </td>
-            `;
-
-            tbody.appendChild(tr);
+        counters.forEach((counter, index) => {
+            counter.textContent = String(values[index] || 0);
         });
     }
 
-    // ============================================================
-    // 8. RECHERCHE ET FILTRES
-    // ============================================================
+    function addActionButton(container, item, action, label, className, svg) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = `btn-action ${className}`;
+        button.dataset.action = action;
+        button.dataset.cessionId = item.id;
+        button.title = label;
+        button.setAttribute('aria-label', label);
+        button.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${svg}</svg>`;
+        container.appendChild(button);
+    }
 
-    const searchInput = document.querySelector('.search-input');
-    const filterStatut = document.querySelectorAll('.filter-select')[0];
-    const filterDate = document.querySelectorAll('.filter-select')[1];
-
-    function filterCessions() {
-        const search = (searchInput?.value || '').toLowerCase().trim();
-        const statut = filterStatut?.value || '';
-
-        const rows = tbody.querySelectorAll('tr');
-
-        rows.forEach(function (row) {
-            const cells = row.querySelectorAll('td');
-            const matricule = (cells[0]?.textContent || '').toLowerCase();
-            const ancien = (cells[1]?.textContent || '').toLowerCase();
-            const nouveau = (cells[2]?.textContent || '').toLowerCase();
-            const statutText = (cells[5]?.textContent || '').toLowerCase();
-
-            const matchSearch = !search ||
-                matricule.includes(search) ||
-                ancien.includes(search) ||
-                nouveau.includes(search);
-
-            const matchStatut = !statut || statutText.includes(statut.toLowerCase());
-
-            if (matchSearch && matchStatut) {
-                row.style.display = '';
+    function createCessionRow(item) {
+        const row = document.createElement('tr');
+        row.dataset.cessionId = item.id;
+        const values = [
+            item.matricule || '—',
+            item.nouveauProprietaire || '—',
+            formatDate(item.dateCession),
+            item.telephone || item.nouveauTelephone || '—'
+        ];
+        values.forEach((value, index) => {
+            const cell = document.createElement('td');
+            if (index === 0) {
+                const strong = document.createElement('strong');
+                strong.textContent = value;
+                cell.appendChild(strong);
             } else {
-                row.style.display = 'none';
+                cell.textContent = value;
             }
+            row.appendChild(cell);
         });
+
+        const statusCell = document.createElement('td');
+        statusCell.appendChild(getStatusBadge(item.statut));
+        row.appendChild(statusCell);
+
+        const actions = document.createElement('td');
+        actions.className = 'actions-cell';
+        addActionButton(actions, item, 'view', 'Voir', 'btn-view',
+            '<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>');
+        addActionButton(actions, item, 'edit', 'Modifier', 'btn-edit',
+            '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4Z"/>');
+        addActionButton(actions, item, 'delete', 'Supprimer', 'btn-delete',
+            '<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/><path d="M10 11v6M14 11v6"/>');
+        row.appendChild(actions);
+        return row;
     }
 
-    if (searchInput) {
-        searchInput.addEventListener('input', filterCessions);
+    function renderDetails(item) {
+        const fields = [
+            { label: 'Matricule', value: item.matricule },
+            { label: 'Nouveau propriétaire', value: item.nouveauProprietaire },
+            { label: 'Téléphone', value: item.nouveauTelephone || item.telephone },
+            { label: 'Date de cession', value: formatDate(item.dateCession) },
+            { label: 'Statut', value: item.statut }
+        ];
+        window.kapitransRecordDialog('Détails de la cession', fields);
     }
-    if (filterStatut) {
-        filterStatut.addEventListener('change', filterCessions);
-    }
 
-    tbody.addEventListener('click', function (event) {
-        const button = event.target.closest('.btn-action');
-        if (!button) return;
-
-        const row = button.closest('tr');
-        const cession = getAllCessions().find(item => item._key === row?.dataset.cessionKey && item._source === row?.dataset.source);
-        if (!cession) return;
-
-        if (button.classList.contains('btn-view')) {
-            window.kapitransRecordDialog('Détails de la cession', [
-                { label: 'Véhicule', value: cession.matricule },
-                { label: 'Ancien propriétaire', value: cession.ancienProprietaire },
-                { label: 'Nouveau propriétaire', value: cession.nouveauProprietaire },
-                { label: 'Date', value: cession.date },
-                { label: 'Prix', value: cession.prix },
-                { label: 'Statut', value: cession.statut }
-            ]);
-            return;
-        }
-
-        if (button.classList.contains('btn-approve') || button.classList.contains('btn-reject')) {
-            const nextStatus = button.classList.contains('btn-approve') ? 'validee' : 'refusee';
-            const label = nextStatus === 'validee' ? 'valider' : 'refuser';
-            if (!window.confirm(`Confirmer la décision de ${label} la cession ${cession.matricule} ?`)) return;
-
-            if (cession._source === 'stored') {
-                const stored = readStoredValue('kapitrans-cessions', []);
-                const record = stored[Number(cession._key)];
-                if (!record) return;
-                record.statut = nextStatus === 'validee' ? 'validee' : 'refusee';
-                localStorage.setItem('kapitrans-cessions', JSON.stringify(stored));
-            } else {
-                const overrides = readStoredValue('kapitrans-cession-overrides', {});
-                overrides[cession._key] = { ...overrides[cession._key], statut: nextStatus };
-                localStorage.setItem('kapitrans-cession-overrides', JSON.stringify(overrides));
-            }
-            renderCessions();
-            filterCessions();
-            return;
-        }
-
-        if (button.classList.contains('btn-edit')) {
-            window.kapitransRecordDialog('Modifier la cession', [
-                { name: 'ancienProprietaire', label: 'Ancien propriétaire', value: cession.ancienProprietaire },
-                { name: 'nouveauProprietaire', label: 'Nouveau propriétaire', value: cession.nouveauProprietaire },
-                { name: 'date', label: 'Date', value: cession.date },
-                { name: 'prix', label: 'Prix', value: cession.prix },
-                {
-                    name: 'statut', label: 'Statut', value: cession.statut, options: [
-                        { value: 'attente', label: 'En attente' },
-                        { value: 'validee', label: 'Validée' },
-                        { value: 'refusee', label: 'Refusée' }
-                    ]
-                }
-            ], function (values) {
-                if (cession._source === 'stored') {
-                    const stored = readStoredValue('kapitrans-cessions', []);
-                    const record = stored[Number(cession._key)];
-                    if (!record) return false;
-                    record.ancienProprietaire = { ...record.ancienProprietaire, nom: values.ancienProprietaire.trim() };
-                    const nameParts = values.nouveauProprietaire.trim().split(/\s+/);
-                    record.nouveauProprietaire = {
-                        ...record.nouveauProprietaire,
-                        nom: nameParts.shift() || '',
-                        prenom: nameParts.join(' ')
-                    };
-                    record.dateCession = values.date.trim();
-                    record.prix = values.prix.trim().replace(/\s/g, '').replace(/FC$/i, '');
-                    record.statut = values.statut;
-                    localStorage.setItem('kapitrans-cessions', JSON.stringify(stored));
-                } else {
-                    const overrides = readStoredValue('kapitrans-cession-overrides', {});
-                    overrides[cession._key] = {
-                        ...overrides[cession._key],
-                        ancienProprietaire: values.ancienProprietaire.trim(),
-                        nouveauProprietaire: values.nouveauProprietaire.trim(),
-                        date: values.date.trim(),
-                        prix: values.prix.trim(),
-                        statut: values.statut
-                    };
-                    localStorage.setItem('kapitrans-cession-overrides', JSON.stringify(overrides));
-                }
-                renderCessions();
-                filterCessions();
+    function editCession(item) {
+        window.kapitransRecordDialog('Modifier la cession', [
+            { name: 'matricule', label: 'Matricule', value: item.matricule, required: true },
+            { name: 'nouveauProprietaire', label: 'Nouveau propriétaire', value: item.nouveauProprietaire, required: true },
+            { name: 'nouveauTelephone', label: 'Téléphone', value: item.nouveauTelephone || item.telephone, required: true },
+            { name: 'dateCession', label: 'Date de cession', value: item.dateCession, type: 'date', required: true },
+            { name: 'statut', label: 'Statut', value: item.statut, required: true, options: [
+                { value: 'attente', label: 'En attente' },
+                { value: 'validee', label: 'Validée' },
+                { value: 'refusee', label: 'Refusée' }
+            ] }
+        ], async function (values) {
+            await updateDoc(doc(db, 'cessions', item.id), {
+                matricule: values.matricule.trim().toUpperCase(),
+                nouveauProprietaire: values.nouveauProprietaire.trim(),
+                nouveauTelephone: values.nouveauTelephone.trim(),
+                dateCession: values.dateCession,
+                statut: values.statut
             });
+            await renderCessions();
+        });
+    }
+
+    async function renderCessions() {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: #94a3b8;">Chargement...</td></tr>';
+        try {
+            const querySnapshot = await getDocs(collection(db, 'cessions'));
+            cessions = querySnapshot.docs.map((snapshot) => ({ id: snapshot.id, ...snapshot.data() }));
+            updateCounters();
+            tbody.replaceChildren();
+
+            if (!cessions.length) {
+                const row = tbody.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = 7;
+                cell.style.cssText = 'text-align: center; padding: 2rem; color: #94a3b8;';
+                cell.textContent = 'Aucune cession enregistrée.';
+                return;
+            }
+
+            cessions.forEach((item) => tbody.appendChild(createCessionRow(item)));
+        } catch (error) {
+            console.error('Erreur Firebase lors du chargement des cessions :', error);
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: #fca5a5;">Erreur de chargement.</td></tr>';
+        }
+    }
+
+    tbody.addEventListener('click', async (event) => {
+        const button = event.target.closest('button[data-action]');
+        if (!button) return;
+        const item = cessions.find((entry) => entry.id === button.dataset.cessionId);
+        if (!item) return;
+
+        if (button.dataset.action === 'view') {
+            renderDetails(item);
+        } else if (button.dataset.action === 'edit') {
+            editCession(item);
+        } else if (button.dataset.action === 'delete') {
+            if (!window.confirm(`Supprimer la cession du véhicule ${item.matricule || ''} ?`)) return;
+            button.disabled = true;
+            try {
+                await deleteDoc(doc(db, 'cessions', item.id));
+                await renderCessions();
+            } catch (error) {
+                console.error('Impossible de supprimer la cession.', error);
+                window.alert('La suppression a échoué. Vérifiez vos droits et réessayez.');
+                button.disabled = false;
+            }
         }
     });
 
-    // ============================================================
-    // 9. INITIALISATION
-    // ============================================================
+    searchInput?.addEventListener('input', function () {
+        const search = (searchInput.value || '').trim().toLowerCase();
+        tbody.querySelectorAll('tr[data-cession-id]').forEach((row) => {
+            const item = cessions.find((entry) => entry.id === row.dataset.cessionId);
+            if (!item) return;
+            const searchable = [item.matricule, item.nouveauProprietaire].join(' ').toLowerCase();
+            row.hidden = !!search && !searchable.includes(search);
+        });
+    });
+
+    filterStatus?.addEventListener('change', function () {
+        const selected = filterStatus.value;
+        tbody.querySelectorAll('tr[data-cession-id]').forEach((row) => {
+            const item = cessions.find((entry) => entry.id === row.dataset.cessionId);
+            if (!item) return;
+            row.hidden = !!selected && item.statut !== selected;
+        });
+    });
 
     renderCessions();
-
 });

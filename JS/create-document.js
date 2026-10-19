@@ -1,28 +1,59 @@
-// ============================================================
-// CREATE DOCUMENT — KAPITRANS
-// ============================================================
-// Ce fichier enregistre un nouveau document dans localStorage.
-// ============================================================
+import { db } from './firebase.js';
+import { addDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-document.addEventListener('DOMContentLoaded', function () {
-
-    // ============================================================
-    // 1. RÉCUPÉRER LE FORMULAIRE
-    // ============================================================
-
+document.addEventListener('DOMContentLoaded', async function () {
     const form = document.getElementById('create-document-form');
     if (!form) return;
 
-    // ============================================================
-    // 2. ÉCOUTER LA SOUMISSION
-    // ============================================================
+    const matriculeInput = form.querySelector('input[name="vehicule-matricule"]');
+    const modelInput = form.querySelector('input[name="vehicule-modele"]');
+    const ownerInput = form.querySelector('input[name="vehicule-proprietaire"]');
+    const vehicleStatus = document.getElementById('vehicle-lookup-status');
+    let vehicles = [];
+    let selectedVehicle = null;
 
-    form.addEventListener('submit', function (e) {
+    try {
+        const vehicleSnapshot = await getDocs(collection(db, 'vehicles'));
+        vehicles = vehicleSnapshot.docs.map((vehicleDoc) => ({
+            id: vehicleDoc.id,
+            ...vehicleDoc.data()
+        }));
+        if (vehicles.length === 0) {
+            vehicleStatus.textContent = 'Aucun véhicule enregistré. Enregistrez un véhicule avant de créer son document.';
+        }
+    } catch (error) {
+        console.error('Impossible de charger les véhicules depuis Firebase.', error);
+        vehicleStatus.textContent = 'Impossible de charger les véhicules. Vérifiez la connexion puis rechargez la page.';
+    }
+
+    matriculeInput.addEventListener('input', function () {
+        const normalizedMatricule = matriculeInput.value.trim().toUpperCase().replace(/\s+/g, '');
+        selectedVehicle = normalizedMatricule
+            ? vehicles.find((vehicle) =>
+                String(vehicle.matricule || '').trim().toUpperCase().replace(/\s+/g, '') === normalizedMatricule
+            ) || null
+            : null;
+
+        modelInput.value = selectedVehicle
+            ? [selectedVehicle.marque, selectedVehicle.modele].filter(Boolean).join(' ')
+            : '';
+        ownerInput.value = selectedVehicle
+            ? (typeof selectedVehicle.proprietaire === 'string'
+                ? selectedVehicle.proprietaire
+                : selectedVehicle.proprietaire?.nom || '')
+            : '';
+
+        if (!matriculeInput.value.trim()) {
+            vehicleStatus.textContent = '';
+        } else if (selectedVehicle) {
+            vehicleStatus.textContent = 'Véhicule trouvé.';
+        } else if (vehicles.length > 0) {
+            vehicleStatus.textContent = 'Aucun véhicule trouvé pour ce matricule.';
+        }
+    });
+
+    form.addEventListener('submit', async function (e) {
         e.preventDefault();
-
-        // ============================================================
-        // 3. RÉCUPÉRER LES VALEURS
-        // ============================================================
 
         const matricule = form.querySelector('input[name="vehicule-matricule"]').value.trim().toUpperCase();
         const typeDocument = form.querySelector('select[name="type-document"]').value;
@@ -31,25 +62,23 @@ document.addEventListener('DOMContentLoaded', function () {
         const dateEmission = form.querySelector('input[name="date-emission"]').value;
         const dateExpiration = form.querySelector('input[name="date-expiration"]').value;
 
-        // ============================================================
-        // 4. VÉRIFIER LES CHAMPS OBLIGATOIRES
-        // ============================================================
-
         if (!matricule || !typeDocument || !numeroDocument || !dateEmission || !dateExpiration) {
-            showMessage('Veuillez remplir tous les champs obligatoires.', 'error');
+            alert('❌ Veuillez remplir tous les champs obligatoires.');
             return;
         }
 
-        // ============================================================
-        // 5. CALCULER LE STATUT
-        // ============================================================
+        if (!selectedVehicle) {
+            alert('❌ Sélectionnez un véhicule enregistré en saisissant son matricule exact.');
+            matriculeInput.focus();
+            return;
+        }
 
+        // Calcul basique du statut
         function getStatus(dateExp) {
             if (!dateExp) return 'valide';
             const today = new Date();
             const expiry = new Date(dateExp);
             const diffDays = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
-
             if (diffDays < 0) return 'expire';
             if (diffDays < 30) return 'bientot';
             return 'valide';
@@ -57,56 +86,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const statut = getStatus(dateExpiration);
 
-        // ============================================================
-        // 6. CRÉER LE DOCUMENT
-        // ============================================================
-
-        const newDocument = {
-            matricule: matricule,
-            type: typeDocument,
-            organisme: organisme,
-            numero: numeroDocument,
-            dateEmission: dateEmission,
-            dateExpiration: dateExpiration,
-            statut: statut,
-            dateCreation: new Date().toISOString()
-        };
-
-        // ============================================================
-        // 7. SAUVEGARDER
-        // ============================================================
-
-        const documents = JSON.parse(localStorage.getItem('kapitrans-documents') || '[]');
-        documents.push(newDocument);
-        localStorage.setItem('kapitrans-documents', JSON.stringify(documents));
-        let auditFailed = false;
         try {
-            const session = JSON.parse(localStorage.getItem('kapitrans-user') || 'null');
-            window.kapitransAudit?.add(session?.nom, 'Création document', 'create', 'DOCUMENT', `${typeDocument} — ${matricule}`);
-        } catch (error) {
-            auditFailed = true;
-            console.error('Document enregistré, mais le journal d’audit n’a pas pu être actualisé.', error);
-        }
+            await addDoc(collection(db, "documents"), {
+                matricule: matricule,
+                type: typeDocument,
+                organisme: organisme,
+                numero: numeroDocument,
+                dateEmission: dateEmission,
+                dateExpiration: dateExpiration,
+                vehiculeId: selectedVehicle.id,
+                marque: selectedVehicle.marque || '',
+                modele: selectedVehicle.modele || '',
+                proprietaire: typeof selectedVehicle.proprietaire === 'string'
+                    ? selectedVehicle.proprietaire
+                    : selectedVehicle.proprietaire?.nom || '',
+                statut: statut,
+                dateCreation: new Date().toISOString()
+            });
 
-        // ============================================================
-        // 8. SUCCÈS
-        // ============================================================
-
-        showMessage(auditFailed
-            ? 'Document enregistré, mais le journal d’audit n’a pas pu être actualisé.'
-            : 'Document enregistré avec succès !', 'success');
-
-        setTimeout(function () {
+            alert('✅ Document enregistré avec succès !');
             window.location.href = 'admin-documents.html';
-        }, 1500);
+
+        } catch (error) {
+            console.error(error);
+            alert('❌ Erreur : ' + error.message);
+        }
     });
-
-    // ============================================================
-    // 9. AFFICHER UN MESSAGE
-    // ============================================================
-
-    function showMessage(message, type) {
-        window.kapitransToast(message, type);
-    }
-
 });

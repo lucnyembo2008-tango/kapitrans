@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="logokapitrans.png">
     <title>KAPITRANS — Ajouter un document</title>
-    <script src="JS/theme.js"></script>
+    <script type="module" src="JS/theme.js"></script>
     <link rel="stylesheet" href="CSS/style.css">
 </head>
 <body class="register-body">
@@ -46,8 +46,9 @@
                 </div>
                 <div class="form-grid">
                     <label class="field"><span>Matricule du véhicule *</span><input type="text" name="vehicule-matricule" placeholder="Ex. KIN 1234 AB" required></label>
-                    <label class="field"><span>Modèle</span><input type="text" name="vehicule-modele" placeholder="Ex. Toyota Hiace" disabled></label>
-                    <label class="field field-full"><span>Propriétaire / gestionnaire</span><input type="text" name="vehicule-proprietaire" placeholder="Ex. KABILA Jean"></label>
+                    <label class="field"><span>Marque / modèle</span><input type="text" name="vehicule-modele" placeholder="Rempli après saisie du matricule" readonly></label>
+                    <label class="field field-full"><span>Propriétaire / gestionnaire</span><input type="text" name="vehicule-proprietaire" placeholder="Rempli après saisie du matricule" readonly></label>
+                    <p class="field-full" id="vehicle-lookup-status" role="status" aria-live="polite"></p>
                 </div>
 
                 <div class="vehicle-section-heading">
@@ -101,9 +102,9 @@
             </form>
         </section>
     </div>
-    <script src="JS/logout.js"></script>
-    <script src="JS/notifications.js"></script>
-    <script src="JS/audit.js"></script>
-    <script src="JS/create-document.js"></script>
+    <script type="module" src="JS/logout.js"></script>
+    <script type="module" src="JS/notifications.js"></script>
+    <script type="module" src="JS/audit.js"></script>
+    <script type="module" src="JS/create-document.js"></script>
 </body>
 </html>

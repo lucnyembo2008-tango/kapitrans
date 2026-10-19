@@ -1,273 +1,231 @@
-// ============================================================
-// DOCUMENTS — KAPITRANS
-// ============================================================
-// Ce fichier affiche la liste des documents.
-// Tous les documents sont chargés depuis localStorage.
-// ============================================================
+import { db } from './firebase.js';
+import { collection, deleteDoc, doc, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', function () {
-
-    // ============================================================
-    // 1. RÉCUPÉRER LE TABLEAU
-    // ============================================================
-
     const tbody = document.querySelector('.data-table tbody');
     if (!tbody) return;
-    tbody.replaceChildren();
 
-    // ============================================================
-    // 3. RÉCUPÉRER LES DOCUMENTS CRÉÉS
-    // ============================================================
-
-    function readStoredValue(key, fallback) {
-        return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
-    }
-
-    function getAllDocuments() {
-        const storedDocuments = readStoredValue('kapitrans-documents', []);
-        if (!Array.isArray(storedDocuments)) throw new Error('Le registre des documents doit contenir une liste.');
-        return storedDocuments.map(function (documentRecord, index) {
-            return {
-                matricule: documentRecord.matricule,
-                type: formatType(documentRecord.type),
-                numero: documentRecord.numero,
-                emission: formatDate(documentRecord.dateEmission),
-                expiration: formatDate(documentRecord.dateExpiration),
-                statut: documentRecord.statut,
-                _key: String(index),
-                _source: 'stored'
-            };
-        });
-    }
-
-    // ============================================================
-    // 4. FORMATER LE TYPE
-    // ============================================================
-
-    function formatType(type) {
-        const types = {
-            'carte-grise': 'Carte grise',
-            'assurance': 'Assurance',
-            'visite-technique': 'Visite technique',
-            'permis': 'Permis',
-            'vignette': 'Vignette'
-        };
-        return types[type] || type;
-    }
-
-    // ============================================================
-    // 5. FORMATER LA DATE
-    // ============================================================
+    const searchInput = document.querySelector('.search-input');
+    const filters = document.querySelectorAll('.filter-select');
+    const filterType = filters[0];
+    const filterStatus = filters[1];
+    const counters = document.querySelectorAll('.users-stats-grid .stat-number');
+    let documents = [];
 
     function formatDate(dateStr) {
         if (!dateStr) return '';
         const parts = dateStr.split('-');
-        if (parts.length === 3) {
-            return parts[2] + '/' + parts[1] + '/' + parts[0];
-        }
+        if (parts.length === 3) return parts[2] + '/' + parts[1] + '/' + parts[0];
         return dateStr;
     }
 
-    // ============================================================
-    // 6. BADGE DE STATUT
-    // ============================================================
+    function formatType(type) {
+        const types = {
+            'carte-grise': 'Carte grise',
+            assurance: 'Assurance',
+            'visite-technique': 'Visite technique',
+            permis: 'Permis',
+            vignette: 'Vignette'
+        };
+        return types[type] || type || '—';
+    }
 
     function getStatusBadge(statut) {
-        if (statut === 'valide') {
-            return '<span class="status-badge status-active">Valide</span>';
-        }
-        if (statut === 'bientot') {
-            return '<span class="status-badge status-inactive">Expire bientôt</span>';
-        }
-        if (statut === 'expire') {
-            return '<span class="status-badge status-inactive">Expiré</span>';
-        }
-        return '<span class="status-badge">' + escapeHtml(statut || '—') + '</span>';
+        const statuses = {
+            valide: ['status-active', 'Valide'],
+            bientot: ['status-inactive', 'Expire bientôt'],
+            expire: ['status-inactive', 'Expiré']
+        };
+        const [className, label] = statuses[statut] || ['', statut || '—'];
+        const badge = document.createElement('span');
+        badge.className = `status-badge ${className}`;
+        badge.textContent = label;
+        return badge;
     }
 
-    function escapeHtml(value) {
-        return String(value).replace(/[&<>"']/g, function (character) {
-            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character];
-        });
-    }
-
-    // ============================================================
-    // 7. AFFICHER LES DOCUMENTS
-    // ============================================================
-
-    function renderDocuments() {
-        const allDocuments = getAllDocuments();
-        tbody.innerHTML = '';
-        const counts = [
-            allDocuments.length,
-            allDocuments.filter(documentRecord => documentRecord.statut === 'valide').length,
-            allDocuments.filter(documentRecord => documentRecord.statut === 'bientot').length,
-            allDocuments.filter(documentRecord => documentRecord.statut === 'expire').length
+    function updateCounters() {
+        const values = [
+            documents.length,
+            documents.filter((item) => item.statut === 'valide').length,
+            documents.filter((item) => item.statut === 'bientot').length,
+            documents.filter((item) => item.statut === 'expire').length
         ];
-        document.querySelectorAll('.users-stats-grid .stat-number').forEach(function (element, index) {
-            element.textContent = String(counts[index] || 0);
-        });
-        if (allDocuments.length === 0) {
-            const row = tbody.insertRow();
-            const cell = row.insertCell();
-            cell.colSpan = 7;
-            cell.textContent = 'Aucun document enregistré.';
-            return;
-        }
-
-        allDocuments.forEach(function (d) {
-            const tr = document.createElement('tr');
-            tr.dataset.documentKey = d._key;
-            tr.dataset.source = d._source;
-
-            tr.innerHTML = `
-                <td><strong>${escapeHtml(d.matricule)}</strong></td>
-                <td>${escapeHtml(d.type)}</td>
-                <td>${escapeHtml(d.numero)}</td>
-                <td>${escapeHtml(d.emission)}</td>
-                <td>${escapeHtml(d.expiration)}</td>
-                <td>${getStatusBadge(d.statut)}</td>
-                <td class="actions-cell">
-                    <button class="btn-action btn-view" type="button" title="Voir" aria-label="Voir">${window.kapitransIcon('view').outerHTML}</button>
-                    <button class="btn-action btn-edit" type="button" title="Modifier" aria-label="Modifier">${window.kapitransIcon('edit').outerHTML}</button>
-                    <button class="btn-action btn-delete" type="button" title="Supprimer" aria-label="Supprimer">${window.kapitransIcon('delete').outerHTML}</button>
-                </td>
-            `;
-
-            tbody.appendChild(tr);
+        counters.forEach((counter, index) => {
+            counter.textContent = String(values[index] || 0);
         });
     }
-
-    // ============================================================
-    // 8. RECHERCHE ET FILTRES
-    // ============================================================
-
-    const searchInput = document.querySelector('.search-input');
-    const filterType = document.querySelectorAll('.filter-select')[0];
-    const filterStatut = document.querySelectorAll('.filter-select')[1];
 
     function filterDocuments() {
-        const search = (searchInput?.value || '').toLowerCase().trim();
+        const search = (searchInput?.value || '').trim().toLowerCase();
         const type = filterType?.value || '';
-        const statut = filterStatut?.value || '';
+        const status = filterStatus?.value || '';
 
-        const rows = tbody.querySelectorAll('tr');
-
-        rows.forEach(function (row) {
-            const cells = row.querySelectorAll('td');
-            const matricule = (cells[0]?.textContent || '').toLowerCase();
-            const typeText = (cells[1]?.textContent || '').toLowerCase();
-            const numero = (cells[2]?.textContent || '').toLowerCase();
-            const statutText = (cells[5]?.textContent || '').toLowerCase();
-
-            const matchSearch = !search ||
-                matricule.includes(search) ||
-                numero.includes(search);
-
-            const matchType = !type || typeText.includes(type.toLowerCase());
-            const matchStatut = !statut || statutText.includes(statut.toLowerCase());
-
-            if (matchSearch && matchType && matchStatut) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
+        tbody.querySelectorAll('tr[data-document-id]').forEach((row) => {
+            const item = documents.find((documentRecord) => documentRecord.id === row.dataset.documentId);
+            if (!item) return;
+            const matchesSearch = !search ||
+                String(item.matricule || '').toLowerCase().includes(search) ||
+                String(item.numero || '').toLowerCase().includes(search);
+            const matchesType = !type || item.type === type;
+            const matchesStatus = !status || item.statut === status;
+            row.hidden = !(matchesSearch && matchesType && matchesStatus);
         });
     }
 
-    if (searchInput) {
-        searchInput.addEventListener('input', filterDocuments);
+    function addActionButton(container, item, action, label, className, svg) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = `btn-action ${className}`;
+        button.dataset.action = action;
+        button.dataset.documentId = item.id;
+        button.title = label;
+        button.setAttribute('aria-label', label);
+        button.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${svg}</svg>`;
+        container.appendChild(button);
     }
-    if (filterType) {
-        filterType.addEventListener('change', filterDocuments);
-    }
-    if (filterStatut) {
-        filterStatut.addEventListener('change', filterDocuments);
-    }
 
-    tbody.addEventListener('click', function (event) {
-        const button = event.target.closest('.btn-action');
-        if (!button) return;
-
-        const row = button.closest('tr');
-        const documentRecord = getAllDocuments().find(item => item._key === row?.dataset.documentKey && item._source === row?.dataset.source);
-        if (!documentRecord) return;
-
-        if (button.classList.contains('btn-view')) {
-            window.kapitransRecordDialog('Détails du document', [
-                { label: 'Véhicule', value: documentRecord.matricule },
-                { label: 'Type', value: documentRecord.type },
-                { label: 'Numéro', value: documentRecord.numero },
-                { label: 'Date d’émission', value: documentRecord.emission },
-                { label: 'Date d’expiration', value: documentRecord.expiration },
-                { label: 'Statut', value: documentRecord.statut }
-            ]);
-            return;
-        }
-
-        if (button.classList.contains('btn-edit')) {
-            window.kapitransRecordDialog('Modifier le document', [
-                { name: 'type', label: 'Type', value: documentRecord.type, required: true },
-                { name: 'numero', label: 'Numéro', value: documentRecord.numero, required: true },
-                { name: 'emission', label: 'Date d’émission', value: documentRecord.emission },
-                { name: 'expiration', label: 'Date d’expiration', value: documentRecord.expiration },
-                {
-                    name: 'statut', label: 'Statut', value: documentRecord.statut, options: [
-                        { value: 'valide', label: 'Valide' },
-                        { value: 'bientot', label: 'Expire bientôt' },
-                        { value: 'expire', label: 'Expiré' }
-                    ]
-                }
-            ], function (values) {
-                if (documentRecord._source === 'stored') {
-                    const stored = readStoredValue('kapitrans-documents', []);
-                    const record = stored[Number(documentRecord._key)];
-                    if (!record) return false;
-                    record.type = values.type.trim();
-                    record.numero = values.numero.trim();
-                    record.dateEmission = values.emission.trim();
-                    record.dateExpiration = values.expiration.trim();
-                    record.statut = values.statut;
-                    localStorage.setItem('kapitrans-documents', JSON.stringify(stored));
-                } else {
-                    const overrides = readStoredValue('kapitrans-document-overrides', {});
-                    overrides[documentRecord._key] = {
-                        type: values.type.trim(),
-                        numero: values.numero.trim(),
-                        emission: values.emission.trim(),
-                        expiration: values.expiration.trim(),
-                        statut: values.statut
-                    };
-                    localStorage.setItem('kapitrans-document-overrides', JSON.stringify(overrides));
-                }
-                renderDocuments();
-                filterDocuments();
-            });
-            return;
-        }
-
-        if (button.classList.contains('btn-delete')) {
-            if (!window.confirm(`Supprimer le document ${documentRecord.numero} ?`)) return;
-
-            if (documentRecord._source === 'stored') {
-                const stored = readStoredValue('kapitrans-documents', []);
-                stored.splice(Number(documentRecord._key), 1);
-                localStorage.setItem('kapitrans-documents', JSON.stringify(stored));
+    function createDocumentRow(item) {
+        const row = document.createElement('tr');
+        row.dataset.documentId = item.id;
+        const values = [
+            item.matricule || '—',
+            formatType(item.type),
+            item.numero || '—',
+            formatDate(item.dateEmission),
+            formatDate(item.dateExpiration)
+        ];
+        values.forEach((value, index) => {
+            const cell = document.createElement('td');
+            if (index === 0) {
+                const strong = document.createElement('strong');
+                strong.textContent = value;
+                cell.appendChild(strong);
             } else {
-                const hidden = readStoredValue('kapitrans-document-hidden', []);
-                if (!hidden.includes(documentRecord._key)) hidden.push(documentRecord._key);
-                localStorage.setItem('kapitrans-document-hidden', JSON.stringify(hidden));
+                cell.textContent = value;
+            }
+            row.appendChild(cell);
+        });
+
+        const statusCell = document.createElement('td');
+        statusCell.appendChild(getStatusBadge(item.statut));
+        row.appendChild(statusCell);
+
+        const actions = document.createElement('td');
+        actions.className = 'actions-cell';
+        addActionButton(actions, item, 'view', 'Voir', 'btn-view',
+            '<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>');
+        addActionButton(actions, item, 'edit', 'Modifier', 'btn-edit',
+            '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4Z"/>');
+        addActionButton(actions, item, 'delete', 'Supprimer', 'btn-delete',
+            '<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/><path d="M10 11v6M14 11v6"/>');
+        row.appendChild(actions);
+        return row;
+    }
+
+    function renderDetails(item) {
+        const fields = [
+            { label: 'Véhicule', value: item.matricule },
+            { label: 'Marque / modèle', value: [item.marque, item.modele].filter(Boolean).join(' ') },
+            { label: 'Propriétaire', value: item.proprietaire },
+            { label: 'Type', value: formatType(item.type) },
+            { label: 'Organisme émetteur', value: item.organisme },
+            { label: 'Numéro', value: item.numero },
+            { label: 'Date d’émission', value: formatDate(item.dateEmission) },
+            { label: 'Date d’expiration', value: formatDate(item.dateExpiration) },
+            { label: 'Statut', value: item.statut }
+        ];
+        window.kapitransRecordDialog('Détails du document', fields);
+    }
+
+    function editDocument(item) {
+        window.kapitransRecordDialog('Modifier le document', [
+            {
+                name: 'type',
+                label: 'Type de document',
+                value: item.type,
+                required: true,
+                options: [
+                    { value: 'carte-grise', label: 'Carte grise' },
+                    { value: 'assurance', label: 'Assurance' },
+                    { value: 'visite-technique', label: 'Visite technique' },
+                    { value: 'permis', label: 'Permis de conduire' },
+                    { value: 'vignette', label: 'Vignette' }
+                ]
+            },
+            { name: 'organisme', label: 'Organisme émetteur', value: item.organisme },
+            { name: 'numero', label: 'Numéro du document', value: item.numero, required: true },
+            { name: 'dateEmission', label: 'Date d’émission', value: item.dateEmission, type: 'date', required: true },
+            { name: 'dateExpiration', label: 'Date d’expiration', value: item.dateExpiration, type: 'date', required: true }
+        ], async function (values) {
+            const expiration = new Date(`${values.dateExpiration}T23:59:59`);
+            const daysRemaining = Math.ceil((expiration.getTime() - Date.now()) / 86400000);
+            const statut = daysRemaining < 0 ? 'expire' : daysRemaining < 30 ? 'bientot' : 'valide';
+            await updateDoc(doc(db, 'documents', item.id), {
+                type: values.type,
+                organisme: values.organisme.trim(),
+                numero: values.numero.trim(),
+                dateEmission: values.dateEmission,
+                dateExpiration: values.dateExpiration,
+                statut
+            });
+            await renderDocuments();
+        });
+    }
+
+    async function renderDocuments() {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: #94a3b8;">Chargement...</td></tr>';
+        try {
+            const querySnapshot = await getDocs(collection(db, 'documents'));
+            documents = querySnapshot.docs.map((documentSnapshot) => ({
+                id: documentSnapshot.id,
+                ...documentSnapshot.data()
+            }));
+            updateCounters();
+            tbody.replaceChildren();
+
+            if (documents.length === 0) {
+                const row = tbody.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = 7;
+                cell.style.cssText = 'text-align: center; padding: 2rem; color: #94a3b8;';
+                cell.textContent = 'Aucun document enregistré.';
+                return;
             }
 
-            renderDocuments();
+            documents.forEach((item) => tbody.appendChild(createDocumentRow(item)));
             filterDocuments();
+        } catch (error) {
+            console.error('Erreur Firebase lors du chargement des documents :', error);
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: #fca5a5;">Erreur de chargement.</td></tr>';
+        }
+    }
+
+    tbody.addEventListener('click', async (event) => {
+        const button = event.target.closest('button[data-action]');
+        if (!button) return;
+        const item = documents.find((documentRecord) => documentRecord.id === button.dataset.documentId);
+        if (!item) return;
+
+        if (button.dataset.action === 'view') {
+            renderDetails(item);
+        } else if (button.dataset.action === 'edit') {
+            editDocument(item);
+        } else if (button.dataset.action === 'delete') {
+            if (!window.confirm(`Supprimer le document ${item.numero || ''} du véhicule ${item.matricule || ''} ?`)) return;
+            button.disabled = true;
+            try {
+                await deleteDoc(doc(db, 'documents', item.id));
+                await renderDocuments();
+            } catch (error) {
+                console.error('Impossible de supprimer le document.', error);
+                window.alert('La suppression a échoué. Vérifiez vos droits et réessayez.');
+                button.disabled = false;
+            }
         }
     });
 
-    // ============================================================
-    // 9. INITIALISATION
-    // ============================================================
-
+    searchInput?.addEventListener('input', filterDocuments);
+    filterType?.addEventListener('change', filterDocuments);
+    filterStatus?.addEventListener('change', filterDocuments);
     renderDocuments();
-
 });

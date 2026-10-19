@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="logokapitrans.png">
     <title>KAPITRANS — Mes vérifications</title>
-    <script src="JS/theme.js"></script>
-    <script src="JS/session.js"></script>
+    <script type="module" src="JS/theme.js"></script>
+    <script type="module" src="JS/session.js"></script>
     <link rel="stylesheet" href="CSS/style.css">
 </head>
 <body class="admin-body">
@@ -75,10 +75,9 @@
         </main>
     </div>
     <footer class="main-footer"><div class="footer-content"><p class="footer-copyright">&copy; 2027 KAPITRANS. Tous droits réservés.</p></div></footer>
-    <script src="JS/logout.js"></script>
-    <script src="JS/sidebar.js"></script>
-    <script src="JS/notifications.js"></script>
-    <script src="JS/history.js"></script>
+    <script type="module" src="JS/logout.js"></script>
+    <script type="module" src="JS/sidebar.js"></script>
+    <script type="module" src="JS/history.js"></script>
     <script>
         document.querySelector('.print-date').textContent = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long' }).format(new Date());
         document.querySelector('.export-pdf').addEventListener('click', function () { window.print(); });

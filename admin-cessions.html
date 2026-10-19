@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="logokapitrans.png">
     <title>KAPITRANS — Cessions</title>
-    <script src="JS/theme.js"></script>
+    <script type="module" src="JS/theme.js"></script>
     <link rel="stylesheet" href="CSS/style.css">
 </head>
 <body class="admin-body">
@@ -152,64 +152,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>KIN 1234 AB</strong></td>
-                            <td>KABILA Jean</td>
-                            <td>MUKENDI Paul</td>
-                            <td>21/09/2026</td>
-                            <td>15 000 000 FC</td>
-                            <td><span class="status-badge status-active">Validée</span></td>
-                            <td class="actions-cell">
-                                <button class="btn-action btn-view" title="Voir" aria-label="Voir"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
-                                <button class="btn-action btn-edit" title="Modifier" aria-label="Modifier"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>KIN 5678 CD</strong></td>
-                            <td>MUKENDI Paul</td>
-                            <td>ILUNGA Marc</td>
-                            <td>18/09/2026</td>
-                            <td>8 500 000 FC</td>
-                            <td><span class="status-badge status-inactive">En attente</span></td>
-                            <td class="actions-cell">
-                                <button class="btn-action btn-view" title="Voir" aria-label="Voir"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
-                                <button class="btn-action btn-edit" title="Valider" aria-label="Valider"><svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 2"/></svg></button>
-                                <button class="btn-action btn-delete" title="Refuser" aria-label="Refuser"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>KIN 9012 EF</strong></td>
-                            <td>ILUNGA Marc</td>
-                            <td>KASONGO Alice</td>
-                            <td>15/09/2026</td>
-                            <td>12 000 000 FC</td>
-                            <td><span class="status-badge status-active">Validée</span></td>
-                            <td class="actions-cell">
-                                <button class="btn-action btn-view" title="Voir" aria-label="Voir"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
-                                <button class="btn-action btn-edit" title="Modifier" aria-label="Modifier"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>KIN 3456 GH</strong></td>
-                            <td>KASONGO Alice</td>
-                            <td>TSHIMANGA Bob</td>
-                            <td>12/09/2026</td>
-                            <td>22 000 000 FC</td>
-                            <td><span class="status-badge status-inactive">Refusée</span></td>
-                            <td class="actions-cell">
-                                <button class="btn-action btn-view" title="Voir" aria-label="Voir"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>KIN 7890 IJ</strong></td>
-                            <td>TSHIMANGA Bob</td>
-                            <td>KABILA Jean</td>
-                            <td>08/09/2026</td>
-                            <td>18 500 000 FC</td>
-                            <td><span class="status-badge status-active">Validée</span></td>
-                            <td class="actions-cell">
-                                <button class="btn-action btn-view" title="Voir" aria-label="Voir"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
-                                <button class="btn-action btn-edit" title="Modifier" aria-label="Modifier"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
-                            </td>
+                            <td colspan="7" style="text-align: center; padding: 2rem; color: #94a3b8;">Aucune cession enregistrée.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -224,10 +167,10 @@
         </div>
     </footer>
 
-    <script src="JS/logout.js"></script>
-    <script src="JS/sidebar.js"></script>
-    <script src="JS/notifications.js"></script>
-    <script src="JS/cessions.js"></script>
+    <script type="module" src="JS/logout.js"></script>
+    <script type="module" src="JS/sidebar.js"></script>
+    <script type="module" src="JS/notifications.js"></script>
+    <script type="module" src="JS/cessions.js"></script>
 </body>
 <script>
     document.querySelector('.print-date').textContent = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long' }).format(new Date());

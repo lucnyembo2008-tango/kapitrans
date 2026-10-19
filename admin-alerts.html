@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="logokapitrans.png">
     <title>KAPITRANS — Alertes</title>
-    <script src="JS/theme.js"></script>
+    <script type="module" src="JS/theme.js"></script>
     <link rel="stylesheet" href="CSS/style.css">
 </head>
 <body class="admin-body">
@@ -141,128 +141,9 @@
                 </select>
             </div>
 
-            <div class="alerts-container">
-                <div class="alert-card alert-card-critical">
-                    <div class="alert-card-header">
-                        <div class="alert-card-badges">
-                            <span class="alert-gravity gravity-critical">CRITIQUE</span>
-                            <span class="alert-type">Contrôle routier</span>
-                        </div>
-                        <span class="alert-date">Il y a 5 min</span>
-                    </div>
-                    <div class="alert-card-body">
-                        <h3 class="alert-card-title">Véhicule signalé : KIN 5678 CD</h3>
-                        <p class="alert-card-message">Signalé par l'agent <strong>MUKENDI Paul</strong> sur le Boulevard Lumumba. Motif : visite technique expirée.</p>
-                        <div class="alert-card-details">
-                            <div class="alert-detail"><span class="alert-detail-label">Véhicule</span><span class="alert-detail-value">Hyundai H1</span></div>
-                            <div class="alert-detail"><span class="alert-detail-label">Propriétaire</span><span class="alert-detail-value">MUKENDI Paul</span></div>
-                            <div class="alert-detail"><span class="alert-detail-label">Zone</span><span class="alert-detail-value">Boulevard Lumumba</span></div>
-                        </div>
-                    </div>
-                    <div class="alert-card-actions">
-                        <button class="btn-action btn-view" type="button" aria-label="Voir le véhicule"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
-                        <button class="btn-action btn-edit" type="button" aria-label="Marquer résolue"><svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 2"/></svg></button>
-                        <button class="btn-action btn-delete" type="button" aria-label="Ignorer"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-                    </div>
-                </div>
-
-                <div class="alert-card alert-card-critical">
-                    <div class="alert-card-header">
-                        <div class="alert-card-badges">
-                            <span class="alert-gravity gravity-critical">CRITIQUE</span>
-                            <span class="alert-type">Document expiré</span>
-                        </div>
-                        <span class="alert-date">Il y a 2h</span>
-                    </div>
-                    <div class="alert-card-body">
-                        <h3 class="alert-card-title">Assurance expirée : KIN 9012 EF</h3>
-                        <p class="alert-card-message">L'assurance du véhicule a expiré le 15/09/2026. Le propriétaire doit régulariser sa situation.</p>
-                        <div class="alert-card-details">
-                            <div class="alert-detail"><span class="alert-detail-label">Véhicule</span><span class="alert-detail-value">Mercedes 207</span></div>
-                            <div class="alert-detail"><span class="alert-detail-label">Propriétaire</span><span class="alert-detail-value">ILUNGA Marc</span></div>
-                            <div class="alert-detail"><span class="alert-detail-label">Expiré depuis</span><span class="alert-detail-value">6 jours</span></div>
-                        </div>
-                    </div>
-                    <div class="alert-card-actions">
-                        <button class="btn-action btn-view" type="button" aria-label="Voir le véhicule"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
-                        <button class="btn-action btn-edit" type="button" aria-label="Marquer résolue"><svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 2"/></svg></button>
-                        <button class="btn-action btn-delete" type="button" aria-label="Ignorer"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-                    </div>
-                </div>
-
-                <div class="alert-card alert-card-warning">
-                    <div class="alert-card-header">
-                        <div class="alert-card-badges">
-                            <span class="alert-gravity gravity-warning">MOYENNE</span>
-                            <span class="alert-type">Cession suspecte</span>
-                        </div>
-                        <span class="alert-date">Il y a 5h</span>
-                    </div>
-                    <div class="alert-card-body">
-                        <h3 class="alert-card-title">Cession en attente : KIN 3456 GH</h3>
-                        <p class="alert-card-message">Une cession a été déclarée mais n'a pas encore été validée. Le véhicule est en attente de transfert depuis 3 jours.</p>
-                        <div class="alert-card-details">
-                            <div class="alert-detail"><span class="alert-detail-label">Véhicule</span><span class="alert-detail-value">Toyota Corolla</span></div>
-                            <div class="alert-detail"><span class="alert-detail-label">Cédant</span><span class="alert-detail-value">KASONGO Alice</span></div>
-                            <div class="alert-detail"><span class="alert-detail-label">Cessionnaire</span><span class="alert-detail-value">TSHIMANGA Bob</span></div>
-                        </div>
-                    </div>
-                    <div class="alert-card-actions">
-                        <button class="btn-action btn-view" type="button" aria-label="Voir la cession"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
-                        <button class="btn-action btn-edit" type="button" aria-label="Valider"><svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 2"/></svg></button>
-                        <button class="btn-action btn-delete" type="button" aria-label="Refuser"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-                    </div>
-                </div>
-
-                <div class="alert-card alert-card-warning">
-                    <div class="alert-card-header">
-                        <div class="alert-card-badges">
-                            <span class="alert-gravity gravity-warning">MOYENNE</span>
-                            <span class="alert-type">Maintenance</span>
-                        </div>
-                        <span class="alert-date">Il y a 1 jour</span>
-                    </div>
-                    <div class="alert-card-body">
-                        <h3 class="alert-card-title">Maintenance en retard : KIN 7890 IJ</h3>
-                        <p class="alert-card-message">Le dernier entretien date de plus de 12 mois. Une intervention est recommandée.</p>
-                        <div class="alert-card-details">
-                            <div class="alert-detail"><span class="alert-detail-label">Véhicule</span><span class="alert-detail-value">Nissan Urvan</span></div>
-                            <div class="alert-detail"><span class="alert-detail-label">Dernier entretien</span><span class="alert-detail-value">15/09/2025</span></div>
-                            <div class="alert-detail"><span class="alert-detail-label">Kilométrage</span><span class="alert-detail-value">125 000 km</span></div>
-                        </div>
-                    </div>
-                    <div class="alert-card-actions">
-                        <button class="btn-action btn-view" type="button" aria-label="Voir le véhicule"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
-                        <button class="btn-action btn-edit" type="button" aria-label="Marquer résolue"><svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 2"/></svg></button>
-                        <button class="btn-action btn-delete" type="button" aria-label="Ignorer"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-                    </div>
-                </div>
-
-                <div class="alert-card alert-card-info">
-                    <div class="alert-card-header">
-                        <div class="alert-card-badges">
-                            <span class="alert-gravity gravity-info">FAIBLE</span>
-                            <span class="alert-type">Document</span>
-                        </div>
-                        <span class="alert-date">Il y a 2 jours</span>
-                    </div>
-                    <div class="alert-card-body">
-                        <h3 class="alert-card-title">Assurance expire bientôt : KIN 1234 AB</h3>
-                        <p class="alert-card-message">L'assurance du véhicule expire dans 15 jours. Un rappel a été envoyé au propriétaire.</p>
-                        <div class="alert-card-details">
-                            <div class="alert-detail"><span class="alert-detail-label">Véhicule</span><span class="alert-detail-value">Toyota Hiace</span></div>
-                            <div class="alert-detail"><span class="alert-detail-label">Propriétaire</span><span class="alert-detail-value">KABILA Jean</span></div>
-                            <div class="alert-detail"><span class="alert-detail-label">Expire le</span><span class="alert-detail-value">10/10/2026</span></div>
-                        </div>
-                    </div>
-                    <div class="alert-card-actions">
-                        <button class="btn-action btn-view" type="button" aria-label="Voir le véhicule"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
-                        <button class="btn-action btn-edit" type="button" aria-label="Marquer résolue"><svg viewBox="0 0 24 24"><path d="M5 12l4 4L19 2"/></svg></button>
-                        <button class="btn-action btn-delete" type="button" aria-label="Ignorer"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-                    </div>
-                </div>
+                        <div class="alerts-container">
+                <p style="text-align:center; padding: 2rem; color: #94a3b8;">Aucune alerte pour le moment.</p>
             </div>
-
         </main>
     </div>
 
@@ -272,10 +153,10 @@
         </div>
     </footer>
 
-    <script src="JS/logout.js"></script>
-    <script src="JS/sidebar.js"></script>
-    <script src="JS/notifications.js"></script>
-    <script src="JS/alerts.js"></script>
+    <script type="module" src="JS/logout.js"></script>
+    <script type="module" src="JS/sidebar.js"></script>
+    <script type="module" src="JS/notifications.js"></script>
+    <script type="module" src="JS/alerts.js"></script>
 </body>
 <script>
     document.querySelector('.print-date').textContent = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'long' }).format(new Date());
