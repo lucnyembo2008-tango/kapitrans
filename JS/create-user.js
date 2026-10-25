@@ -1,4 +1,5 @@
 import { auth, db } from './firebase.js';
+import { logAudit } from './audit-log.js';
 import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -55,6 +56,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 role: firebaseRole,
                 zone: zone,
                 dateCreation: new Date().toISOString()
+            });
+            await logAudit({
+                actionType: 'create',
+                action: 'Création',
+                entite: 'Utilisateur',
+                details: `${nom} ${prenom} — ${email} — ${firebaseRole}`
             });
 
             alert('✅ Utilisateur créé avec succès !');

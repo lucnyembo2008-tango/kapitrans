@@ -1,4 +1,5 @@
 ﻿import { db } from './firebase.js';
+import { logAudit } from './audit-log.js';
 import { collection, deleteDoc, doc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', async function () {
@@ -7,6 +8,34 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     const RDC_CENTER = [-4.038, 21.758];
     const INITIAL_ZOOM = 6;
+    const PROVINCE_VIEWS = {
+        kinshasa: { center: [-4.420, 15.320], zoom: 8 },
+        'kongo-central': { center: [-5.45, 14.85], zoom: 7 },
+        kwango: { center: [-6.7, 17.0], zoom: 7 },
+        kwilu: { center: [-4.9, 18.8], zoom: 7 },
+        'mai-ndombe': { center: [-2.1, 18.5], zoom: 7 },
+        kasai: { center: [-5.7, 21.3], zoom: 7 },
+        'kasai-central': { center: [-6.0, 22.5], zoom: 7 },
+        'kasai-oriental': { center: [-6.1, 23.6], zoom: 7 },
+        lomami: { center: [-6.1, 24.7], zoom: 7 },
+        sankuru: { center: [-3.3, 24.5], zoom: 7 },
+        maniema: { center: [-3.0, 26.0], zoom: 7 },
+        'sud-kivu': { center: [-2.7, 28.8], zoom: 8 },
+        'nord-kivu': { center: [-0.6, 29.3], zoom: 8 },
+        ituri: { center: [1.8, 30.2], zoom: 7 },
+        'haut-uele': { center: [3.0, 28.5], zoom: 7 },
+        tshopo: { center: [0.5, 25.5], zoom: 7 },
+        'bas-uele': { center: [3.0, 25.5], zoom: 7 },
+        'nord-ubangi': { center: [4.3, 21.0], zoom: 7 },
+        mongala: { center: [2.2, 21.5], zoom: 7 },
+        'sud-ubangi': { center: [3.3, 19.0], zoom: 7 },
+        equateur: { center: [0.4, 19.0], zoom: 7 },
+        tshuapa: { center: [-0.8, 24.0], zoom: 7 },
+        tanganyika: { center: [-6.0, 28.4], zoom: 7 },
+        'haut-lomami': { center: [-8.5, 25.5], zoom: 7 },
+        lualaba: { center: [-10.7, 25.8], zoom: 7 },
+        'haut-katanga': { center: [-11.7, 27.5], zoom: 7 }
+    };
     const map = L.map('kapitrans-map').setView(RDC_CENTER, INITIAL_ZOOM);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -17,6 +46,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     const vehicleCountEl = document.getElementById('vehicle-count');
     const listEl = document.getElementById('vehicle-list');
     const searchInput = document.getElementById('map-search-input');
+    const provinceSelect = document.getElementById('province-select');
     const filterButtons = document.querySelectorAll('.filter-btn');
     const statCards = {
         total: document.querySelector('[data-map-stat="total"]'),
@@ -25,10 +55,17 @@ document.addEventListener('DOMContentLoaded', async function () {
         'non-conforme': document.querySelector('[data-map-stat="non-conforme"]')
     };
 
-    const defaultCoordinates = { lat: -4.325, lng: 15.322 };
     const markers = new Map();
     let vehicles = [];
     let activeFilter = 'all';
+    let activeProvince = '';
+
+    function normalizeProvince(value) {
+        return String(value || '').trim().toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/\s+/g, '-');
+    }
 
     function normalizeStatus(value) {
         const text = String(value || '').trim().toLowerCase();
@@ -45,29 +82,28 @@ document.addEventListener('DOMContentLoaded', async function () {
         return '#86efac';
     }
 
-    function toNumber(value, fallback) {
+    function toCoordinate(value) {
+        if (value === null || value === undefined || String(value).trim() === '') return null;
         const number = Number(value);
-        return Number.isFinite(number) ? number : fallback;
+        return Number.isFinite(number) ? number : null;
     }
 
     function getVehiclePosition(vehicle) {
-        const lat = toNumber(
-            vehicle?.lat ?? vehicle?.latitude ?? vehicle?.position?.lat ?? vehicle?.gps?.lat,
-            defaultCoordinates.lat
-        );
-        const lng = toNumber(
-            vehicle?.lng ?? vehicle?.longitude ?? vehicle?.position?.lng ?? vehicle?.position?.lon ?? vehicle?.gps?.lng,
-            defaultCoordinates.lng
-        );
+        const lat = toCoordinate(vehicle?.lat ?? vehicle?.latitude ?? vehicle?.position?.lat ?? vehicle?.gps?.lat);
+        const lng = toCoordinate(vehicle?.lng ?? vehicle?.longitude ?? vehicle?.position?.lng ?? vehicle?.position?.lon ?? vehicle?.gps?.lng);
+        if (lat === null || lng === null || lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
         return [lat, lng];
     }
 
     function updateStats() {
+        const provinceVehicles = activeProvince
+            ? vehicles.filter((vehicle) => normalizeProvince(vehicle.province) === activeProvince)
+            : vehicles;
         const counts = {
-            total: vehicles.length,
-            conforme: vehicles.filter((vehicle) => normalizeStatus(vehicle.statut) === 'conforme').length,
-            surveiller: vehicles.filter((vehicle) => normalizeStatus(vehicle.statut) === 'surveiller').length,
-            'non-conforme': vehicles.filter((vehicle) => normalizeStatus(vehicle.statut) === 'non-conforme').length
+            total: provinceVehicles.length,
+            conforme: provinceVehicles.filter((vehicle) => normalizeStatus(vehicle.statut) === 'conforme').length,
+            surveiller: provinceVehicles.filter((vehicle) => normalizeStatus(vehicle.statut) === 'surveiller').length,
+            'non-conforme': provinceVehicles.filter((vehicle) => normalizeStatus(vehicle.statut) === 'non-conforme').length
         };
 
         Object.entries(counts).forEach(([key, value]) => {
@@ -80,7 +116,19 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
 
+    function filterMarkersByProvince() {
+        markers.forEach((marker, key) => {
+            const vehicle = vehicles.find((entry) => (entry.matricule || entry.id) === key);
+            const matchesProvince = !activeProvince || normalizeProvince(vehicle?.province) === activeProvince;
+            if (matchesProvince) marker.addTo(map);
+            else map.removeLayer(marker);
+        });
+    }
+
     function createMarker(vehicle) {
+        const position = getVehiclePosition(vehicle);
+        if (!position) return null;
+
         const status = normalizeStatus(vehicle.statut);
         const color = getStatusColor(status);
         const markerIcon = L.divIcon({
@@ -91,7 +139,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             popupAnchor: [0, 0]
         });
 
-        const [lat, lng] = getVehiclePosition(vehicle);
+        const [lat, lng] = position;
         const marker = L.marker([lat, lng], { icon: markerIcon }).addTo(map);
         const popupContent = `
             <div class="map-popup">
@@ -146,6 +194,12 @@ document.addEventListener('DOMContentLoaded', async function () {
                         if (!confirmed) return;
                         try {
                             await deleteDoc(doc(db, 'vehicles', vehicleId));
+                            await logAudit({
+                                actionType: 'delete',
+                                action: 'Suppression',
+                                entite: 'Véhicule',
+                                details: `${vehicle.matricule || '—'} — supprimé depuis la carte`
+                            });
                             map.removeLayer(marker);
                             markers.delete(vehicle.matricule || vehicle.id);
                             vehicles = vehicles.filter((entry) => entry.id !== vehicleId);
@@ -171,9 +225,10 @@ document.addEventListener('DOMContentLoaded', async function () {
         const filtered = vehicles.filter((vehicle) => {
             const normalizedStatus = normalizeStatus(vehicle.statut);
             const matchesFilter = activeFilter === 'all' || normalizedStatus === activeFilter;
+            const matchesProvince = !activeProvince || normalizeProvince(vehicle.province) === activeProvince;
             const text = [vehicle.matricule, vehicle.marque, vehicle.modele, vehicle.proprietaire || vehicle.owner].join(' ').toLowerCase();
             const matchesSearch = !query || text.includes(query);
-            return matchesFilter && matchesSearch;
+            return matchesFilter && matchesProvince && matchesSearch;
         });
 
         listEl.innerHTML = '';
@@ -200,10 +255,12 @@ document.addEventListener('DOMContentLoaded', async function () {
                     <span>${[vehicle.marque, vehicle.modele].filter(Boolean).join(' ') || '—'}</span>
                     <span class="map-vehicle-location">${vehicle.proprietaire || vehicle.owner || '—'}</span>
                     <span>${vehicle.categorie || '—'}${vehicle.ville ? ` • ${vehicle.ville}` : ''}</span>
+                    ${getVehiclePosition(vehicle) ? '' : '<span class="map-vehicle-location">Position GPS non enregistrée</span>'}
                 </div>
             `;
 
             item.addEventListener('click', () => {
+                if (!getVehiclePosition(vehicle)) return;
                 focusVehicle(vehicle, 11);
             });
 
@@ -243,6 +300,32 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
 
         searchInput?.addEventListener('input', renderVehicleList);
+        provinceSelect?.addEventListener('change', () => {
+            activeProvince = normalizeProvince(provinceSelect.value);
+            updateStats();
+            renderVehicleList();
+            filterMarkersByProvince();
+
+            if (!activeProvince) {
+                map.flyTo(RDC_CENTER, INITIAL_ZOOM, { duration: 0.8 });
+            } else {
+                const provinceView = PROVINCE_VIEWS[activeProvince];
+                if (provinceView) {
+                    const provinceMarkers = vehicles
+                        .filter((vehicle) => normalizeProvince(vehicle.province) === activeProvince)
+                        .map((vehicle) => markers.get(vehicle.matricule || vehicle.id))
+                        .filter(Boolean);
+                    if (provinceMarkers.length === 1) {
+                        const vehicle = vehicles.find((entry) => markers.get(entry.matricule || entry.id) === provinceMarkers[0]);
+                        focusVehicle(vehicle, 12);
+                    } else if (provinceMarkers.length > 1) {
+                        map.fitBounds(L.featureGroup(provinceMarkers).getBounds().pad(0.15), { maxZoom: 12 });
+                    } else {
+                        map.flyTo(provinceView.center, provinceView.zoom, { duration: 0.8 });
+                    }
+                }
+            }
+        });
     }
 
     function focusVehicleByMatricule(targetMatricule) {
@@ -271,6 +354,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     createMarker(vehicle);
                 }
             });
+            filterMarkersByProvince();
 
             const params = new URLSearchParams(window.location.search);
             const targetMatricule = params.get('matricule');

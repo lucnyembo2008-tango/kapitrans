@@ -1,4 +1,5 @@
 ﻿import { db } from './firebase.js';
+import { logAudit } from './audit-log.js';
 import { collection, deleteDoc, doc, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', async function () {
@@ -89,6 +90,12 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         try {
             await deleteDoc(doc(db, 'alerts', alertId));
+            await logAudit({
+                actionType: 'delete',
+                action: 'Suppression',
+                entite: 'Alerte',
+                details: `Véhicule ${matricule}`
+            });
             await renderAlerts();
         } catch (error) {
             console.error('Impossible de supprimer l’alerte.', error);

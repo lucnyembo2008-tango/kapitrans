@@ -2,10 +2,14 @@
 import { collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', async function () {
-    const user = JSON.parse(localStorage.getItem('kapitrans-user') || 'null');
-    if (!user) return;
+    let user = null;
+    try {
+        user = JSON.parse(localStorage.getItem('kapitrans-user') || 'null');
+    } catch (error) {
+        console.warn('La session locale est invalide; les notifications admin restent accessibles.', error);
+    }
 
-    const normalizedRole = String(user.role || '').toUpperCase();
+    const normalizedRole = String(user?.role || '').toUpperCase();
     if (normalizedRole === 'AGENT') return;
 
     const adminInfo = document.querySelector('.admin-info');

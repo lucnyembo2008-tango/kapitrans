@@ -1,4 +1,5 @@
 import { db } from './firebase.js';
+import { logAudit } from './audit-log.js';
 import { collection, doc, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', async function () {
@@ -218,6 +219,12 @@ document.addEventListener('DOMContentLoaded', async function () {
                         telephone: form.elements.telephone.value.trim(),
                         zone: form.elements.zone.value.trim()
                     });
+                    await logAudit({
+                        actionType: 'update',
+                        action: 'Modification',
+                        entite: 'Utilisateur',
+                        details: `${user.nom || user.email} — profil modifié`
+                    });
                     closeUserDialog();
                     await renderUsers();
                 } catch (error) {
@@ -274,6 +281,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         button.disabled = true;
         try {
             await updateDoc(doc(db, 'users', user.id), { statut: nextStatus });
+            await logAudit({
+                actionType: 'update',
+                action: nextStatus === 'Inactif' ? 'Désactivation' : 'Activation',
+                entite: 'Utilisateur',
+                details: `${userName} — ${nextStatus}`
+            });
             await renderUsers();
         } catch (error) {
             console.error('Impossible de modifier le statut utilisateur.', error);

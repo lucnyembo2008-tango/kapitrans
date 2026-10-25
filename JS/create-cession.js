@@ -1,4 +1,5 @@
 import { db } from './firebase.js';
+import { logAudit } from './audit-log.js';
 import { collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -27,6 +28,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 dateCession: dateCession,
                 statut: 'attente',
                 dateCreation: new Date().toISOString()
+            });
+            await logAudit({
+                actionType: 'create',
+                action: 'Création',
+                entite: 'Cession',
+                details: `${matricule} — nouveau propriétaire : ${nouveauNom} ${nouveauPrenom}`
             });
 
             alert('✅ Cession enregistrée avec succès !');

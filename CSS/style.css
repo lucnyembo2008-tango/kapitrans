@@ -4299,6 +4299,11 @@ body:not(.login-body):not(.admin-body):not(.register-body) > * {
     gap: 18px 18px;
 }
 
+.form-grid[hidden],
+.vehicle-section-heading[hidden] {
+    display: none;
+}
+
 .field {
     display: grid;
     gap: 8px;
@@ -4309,6 +4314,32 @@ body:not(.login-body):not(.admin-body):not(.register-body) > * {
 
 .field-full {
     grid-column: 1 / -1;
+}
+
+.form-feedback {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 12px 14px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.form-feedback[hidden] {
+    display: none;
+}
+
+.form-feedback-success {
+    border-color: rgba(16, 185, 129, .4);
+    background: rgba(16, 185, 129, .12);
+    color: #a7f3d0;
+}
+
+.form-feedback-error {
+    border-color: rgba(239, 68, 68, .4);
+    background: rgba(239, 68, 68, .12);
+    color: #fecaca;
 }
 
 .field input,
@@ -4834,6 +4865,8 @@ body:not(.login-body):not(.admin-body):not(.register-body) > * {
 .result-status-badge { font-size: 12px; font-weight: 800; }
 .result-status-conforme { color: #5eead4; }
 .result-status-non-conforme { color: #fb7185; }
+.result-status-critical { color: #fb7185; }
+.result-status-surveiller { color: #fbbf24; }
 
 .result-message,
 .result-alert {
@@ -4845,6 +4878,7 @@ body:not(.login-body):not(.admin-body):not(.register-body) > * {
 .result-message-conforme { background: rgba(20, 184, 166, .12); }
 .result-message-non-conforme,
 .result-alert-red { background: rgba(244, 63, 94, .12); }
+.result-message-surveiller { background: rgba(245, 158, 11, .12); }
 .result-alert-orange { background: rgba(245, 158, 11, .12); }
 .result-message strong { color: #edf6ff; }
 .result-message p { margin: 4px 0 0; color: #9db0bc; font-size: 12px; }

@@ -1,5 +1,6 @@
 ﻿import { db } from './firebase.js';
-import { addDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { logAudit } from './audit-log.js';
+import { addDoc, collection, doc, getDocs, query, setDoc, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', async function () {
     const form = document.getElementById('verbalize-form');
@@ -24,12 +25,14 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     const dateInput = document.getElementById('date-infraction');
     if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+    let vehicleData = null;
 
     try {
         if (matricule) {
             const vehicleSnapshot = await getDocs(query(collection(db, 'vehicles'), where('matricule', '==', matricule)));
             if (!vehicleSnapshot.empty) {
                 const vehicle = vehicleSnapshot.docs[0].data();
+                vehicleData = vehicle;
                 const marqueEl = document.getElementById('verbalize-marque');
                 const ownerEl = document.getElementById('verbalize-proprietaire');
                 if (marqueEl) marqueEl.textContent = [vehicle.marque, vehicle.modele].filter(Boolean).join(' ') || '—';
@@ -46,6 +49,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         const motif = document.getElementById('motif').value;
         const montant = document.getElementById('montant').value.trim();
         const zone = document.getElementById('zone').value.trim();
+        const dateInfraction = dateInput?.value || new Date().toISOString().split('T')[0];
         const observations = document.getElementById('observations').value.trim();
 
         if (!motif || !montant) {
@@ -55,16 +59,30 @@ document.addEventListener('DOMContentLoaded', async function () {
 
         try {
             const agentName = getCurrentUserName();
+            const pvReference = doc(collection(db, 'pvs'));
+            const numeroPv = `PV-${dateInfraction.replace(/-/g, '')}-${pvReference.id.slice(0, 6).toUpperCase()}`;
+            const dateCreation = new Date().toISOString();
 
-            await addDoc(collection(db, 'pvs'), {
+            await setDoc(pvReference, {
+                numeroPv: numeroPv,
                 matricule: matricule,
+                vehicule: vehicleData ? [vehicleData.marque, vehicleData.modele].filter(Boolean).join(' ') : '',
+                marque: vehicleData?.marque || '',
+                modele: vehicleData?.modele || '',
                 motif: motif,
                 montant: montant,
                 zone: zone,
+                dateInfraction: dateInfraction,
                 observations: observations,
                 agent: agentName,
-                dateCreation: new Date().toISOString(),
+                dateCreation: dateCreation,
                 statut: 'verbalise'
+            });
+            await logAudit({
+                actionType: 'create',
+                action: 'Création',
+                entite: 'Procès-verbal',
+                details: `${numeroPv} — ${matricule} — ${motif} — ${montant} FC`
             });
 
             await addDoc(collection(db, 'alerts'), {

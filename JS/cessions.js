@@ -1,4 +1,5 @@
 import { db } from './firebase.js';
+import { logAudit } from './audit-log.js';
 import { collection, deleteDoc, doc, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', async function () {
@@ -122,6 +123,12 @@ document.addEventListener('DOMContentLoaded', async function () {
                 dateCession: values.dateCession,
                 statut: values.statut
             });
+            await logAudit({
+                actionType: 'update',
+                action: 'Modification',
+                entite: 'Cession',
+                details: `${values.matricule.trim().toUpperCase()} — statut ${values.statut}`
+            });
             await renderCessions();
         });
     }
@@ -165,6 +172,12 @@ document.addEventListener('DOMContentLoaded', async function () {
             button.disabled = true;
             try {
                 await deleteDoc(doc(db, 'cessions', item.id));
+                await logAudit({
+                    actionType: 'delete',
+                    action: 'Suppression',
+                    entite: 'Cession',
+                    details: `Véhicule ${item.matricule || '—'}`
+                });
                 await renderCessions();
             } catch (error) {
                 console.error('Impossible de supprimer la cession.', error);

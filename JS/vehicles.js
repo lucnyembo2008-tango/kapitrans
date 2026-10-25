@@ -1,4 +1,5 @@
 import { db } from './firebase.js';
+import { logAudit } from './audit-log.js';
 import { collection, deleteDoc, doc, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -141,6 +142,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 ['Capacité', vehicle.capacite],
                 ['Usage', vehicle.usage],
                 ['Propriétaire', vehicle.proprietaire],
+                ['Conducteur', vehicle.conducteur],
+                ['Numéro du permis', vehicle.numeroPermis],
+                ['Expiration du permis', vehicle.expirationPermis],
                 ['Province', vehicle.province],
                 ['Ville', vehicle.ville],
                 ['Zone / quartier', vehicle.zone],
@@ -157,6 +161,20 @@ document.addEventListener('DOMContentLoaded', function () {
                 item.append(term, description);
                 details.appendChild(item);
             });
+            if (vehicle.permisFichier?.url) {
+                const item = document.createElement('div');
+                const term = document.createElement('dt');
+                term.textContent = 'Fichier du permis';
+                const description = document.createElement('dd');
+                const link = document.createElement('a');
+                link.href = vehicle.permisFichier.url;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.textContent = vehicle.permisFichier.nom || 'Ouvrir le permis';
+                description.appendChild(link);
+                item.append(term, description);
+                details.appendChild(item);
+            }
             dialog.appendChild(details);
         } else {
             const form = document.createElement('form');
@@ -228,6 +246,32 @@ document.addEventListener('DOMContentLoaded', function () {
                 form.appendChild(label);
             });
 
+            const locationButton = document.createElement('button');
+            locationButton.type = 'button';
+            locationButton.className = 'btn-secondary';
+            locationButton.textContent = 'Utiliser ma position GPS';
+            locationButton.addEventListener('click', () => {
+                if (!navigator.geolocation) {
+                    error.textContent = 'La géolocalisation n’est pas disponible dans ce navigateur.';
+                    return;
+                }
+
+                locationButton.disabled = true;
+                error.textContent = 'Recherche de la position GPS...';
+                navigator.geolocation.getCurrentPosition((position) => {
+                    form.querySelector('[name="lat"]').value = position.coords.latitude;
+                    form.querySelector('[name="lng"]').value = position.coords.longitude;
+                    error.textContent = 'Position GPS récupérée. Enregistrez pour mettre à jour le véhicule.';
+                    locationButton.disabled = false;
+                }, (locationError) => {
+                    error.textContent = locationError.code === locationError.PERMISSION_DENIED
+                        ? 'Autorisez l’accès à votre position dans les paramètres du navigateur.'
+                        : 'Impossible de récupérer la position GPS. Vérifiez la permission et réessayez.';
+                    locationButton.disabled = false;
+                }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+            });
+            form.appendChild(locationButton);
+
             const error = document.createElement('p');
             error.className = 'vehicle-edit-error';
             error.setAttribute('role', 'alert');
@@ -261,6 +305,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 try {
                     await updateDoc(doc(db, 'vehicles', vehicle.id), values);
+                    await logAudit({
+                        actionType: 'update',
+                        action: 'Modification',
+                        entite: 'Véhicule',
+                        details: `${values.matricule} — ${values.marque} ${values.modele}`
+                    });
                     closeDialog(dialog);
                     dialog.remove();
                     await renderVehicles();
@@ -326,6 +376,12 @@ document.addEventListener('DOMContentLoaded', function () {
             button.disabled = true;
             try {
                 await deleteDoc(doc(db, 'vehicles', vehicle.id));
+                await logAudit({
+                    actionType: 'delete',
+                    action: 'Suppression',
+                    entite: 'Véhicule',
+                    details: `${vehicle.matricule || '—'} — ${vehicle.marque || ''} ${vehicle.modele || ''}`
+                });
                 await renderVehicles();
             } catch (error) {
                 console.error('Impossible de supprimer le véhicule.', error);

@@ -1,4 +1,5 @@
 import { db } from './firebase.js';
+import { logAudit } from './audit-log.js';
 import { collection, deleteDoc, doc, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -24,6 +25,9 @@ document.addEventListener('DOMContentLoaded', function () {
             'carte-grise': 'Carte grise',
             assurance: 'Assurance',
             'visite-technique': 'Visite technique',
+            'certificat-controle-technique': 'Certificat de contrôle technique',
+            'attestation-assurance': "Attestation d'assurance",
+            'autorisation-transport': 'Autorisation de transport',
             permis: 'Permis',
             vignette: 'Vignette'
         };
@@ -114,6 +118,10 @@ document.addEventListener('DOMContentLoaded', function () {
         actions.className = 'actions-cell';
         addActionButton(actions, item, 'view', 'Voir', 'btn-view',
             '<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>');
+        if (item.pieceJointe?.url) {
+            addActionButton(actions, item, 'attachment', 'Ouvrir la pièce jointe', 'btn-view',
+                '<path d="M14 3h7v7M10 14 21 3"/><path d="M18 13v7H4V6h7"/>');
+        }
         addActionButton(actions, item, 'edit', 'Modifier', 'btn-edit',
             '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4Z"/>');
         addActionButton(actions, item, 'delete', 'Supprimer', 'btn-delete',
@@ -132,6 +140,7 @@ document.addEventListener('DOMContentLoaded', function () {
             { label: 'Numéro', value: item.numero },
             { label: 'Date d’émission', value: formatDate(item.dateEmission) },
             { label: 'Date d’expiration', value: formatDate(item.dateExpiration) },
+            { label: 'Pièce jointe', value: item.pieceJointe?.nom || 'Aucun fichier joint' },
             { label: 'Statut', value: item.statut }
         ];
         window.kapitransRecordDialog('Détails du document', fields);
@@ -148,6 +157,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     { value: 'carte-grise', label: 'Carte grise' },
                     { value: 'assurance', label: 'Assurance' },
                     { value: 'visite-technique', label: 'Visite technique' },
+                    { value: 'certificat-controle-technique', label: 'Certificat de contrôle technique' },
+                    { value: 'attestation-assurance', label: "Attestation d'assurance" },
+                    { value: 'autorisation-transport', label: 'Autorisation de transport' },
                     { value: 'permis', label: 'Permis de conduire' },
                     { value: 'vignette', label: 'Vignette' }
                 ]
@@ -155,10 +167,10 @@ document.addEventListener('DOMContentLoaded', function () {
             { name: 'organisme', label: 'Organisme émetteur', value: item.organisme },
             { name: 'numero', label: 'Numéro du document', value: item.numero, required: true },
             { name: 'dateEmission', label: 'Date d’émission', value: item.dateEmission, type: 'date', required: true },
-            { name: 'dateExpiration', label: 'Date d’expiration', value: item.dateExpiration, type: 'date', required: true }
+            { name: 'dateExpiration', label: 'Date d’expiration', value: item.dateExpiration, type: 'date', required: Boolean(item.dateExpiration) }
         ], async function (values) {
-            const expiration = new Date(`${values.dateExpiration}T23:59:59`);
-            const daysRemaining = Math.ceil((expiration.getTime() - Date.now()) / 86400000);
+            const expiration = values.dateExpiration ? new Date(`${values.dateExpiration}T23:59:59`) : null;
+            const daysRemaining = expiration ? Math.ceil((expiration.getTime() - Date.now()) / 86400000) : Infinity;
             const statut = daysRemaining < 0 ? 'expire' : daysRemaining < 30 ? 'bientot' : 'valide';
             await updateDoc(doc(db, 'documents', item.id), {
                 type: values.type,
@@ -167,6 +179,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 dateEmission: values.dateEmission,
                 dateExpiration: values.dateExpiration,
                 statut
+            });
+            await logAudit({
+                actionType: 'update',
+                action: 'Modification',
+                entite: 'Document',
+                details: `${values.type} ${values.numero.trim()} — véhicule ${item.matricule || '—'}`
             });
             await renderDocuments();
         });
@@ -208,6 +226,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (button.dataset.action === 'view') {
             renderDetails(item);
+        } else if (button.dataset.action === 'attachment' && item.pieceJointe?.url) {
+            window.open(item.pieceJointe.url, '_blank', 'noopener,noreferrer');
         } else if (button.dataset.action === 'edit') {
             editDocument(item);
         } else if (button.dataset.action === 'delete') {
@@ -215,6 +235,12 @@ document.addEventListener('DOMContentLoaded', function () {
             button.disabled = true;
             try {
                 await deleteDoc(doc(db, 'documents', item.id));
+                await logAudit({
+                    actionType: 'delete',
+                    action: 'Suppression',
+                    entite: 'Document',
+                    details: `${item.type || 'Document'} ${item.numero || ''} — véhicule ${item.matricule || '—'}`
+                });
                 await renderDocuments();
             } catch (error) {
                 console.error('Impossible de supprimer le document.', error);

@@ -53,35 +53,42 @@
 
                 <div class="vehicle-section-heading">
                     <span class="section-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6zM14 3v4h4M9 12h6M9 16h6"/></svg></span>
-                    <span>Type et identification</span>
+                    <span>Documents à enregistrer</span>
                 </div>
-                <div class="form-grid">
-                    <label class="field"><span>Type de document *</span>
-                        <select name="type-document" required>
-                            <option value="">Sélectionner</option>
-                            <option value="carte-grise">Carte grise</option>
-                            <option value="assurance">Assurance</option>
-                            <option value="visite-technique">Visite technique</option>
-                            <option value="permis">Permis de conduire</option>
-                            <option value="vignette">Vignette</option>
-                        </select>
-                    </label>
-                    <label class="field"><span>Organisme émetteur</span><input type="text" name="organisme" placeholder="Ex. DGI / Assurance / Mairie"></label>
-                    <label class="field"><span>Numéro du document *</span><input type="text" name="numero-document" placeholder="Ex. CG-2020-123456" required></label>
-                    <label class="field"><span>Statut</span><input type="text" name="statut" placeholder="Valide" disabled></label>
-                    <label class="field"><span>Date d'émission *</span><input type="date" name="date-emission" required></label>
-                    <label class="field"><span>Date d'expiration *</span><input type="date" name="date-expiration" required></label>
+                <p class="field-full" id="document-form-status" role="status" aria-live="polite">Renseignez au moins un document. Les champs non renseignés seront ignorés.</p>
+
+                <div class="vehicle-section-heading"><span>Certificat de contrôle technique</span></div>
+                <div class="form-grid" data-document-entry="certificat-controle-technique">
+                    <label class="field"><span>Numéro du certificat</span><input type="text" name="certificat-numero"></label>
+                    <label class="field"><span>Date d'émission</span><input type="date" name="certificat-emission"></label>
+                    <label class="field"><span>Date d'expiration</span><input type="date" name="certificat-expiration"></label>
+                    <label class="field"><span>Organisme émetteur</span><input type="text" name="certificat-organisme"></label>
+                    <label class="field field-full"><span>Pièce jointe du certificat</span><input type="file" name="certificat-fichier"></label>
                 </div>
 
-                <div class="vehicle-section-heading">
-                    <span class="section-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 16V4h10v12M4 18h16M8 8h8M8 12h8"/></svg></span>
-                    <span>Pièce jointe</span>
+                <div class="vehicle-section-heading"><span>Vignette</span></div>
+                <div class="form-grid" data-document-entry="vignette">
+                    <label class="field"><span>Numéro de la vignette</span><input type="text" name="vignette-numero"></label>
+                    <label class="field"><span>Date d'émission</span><input type="date" name="vignette-emission"></label>
+                    <label class="field"><span>Organisme émetteur</span><input type="text" name="vignette-organisme"></label>
+                    <label class="field field-full"><span>Pièce jointe de la vignette</span><input type="file" name="vignette-fichier"></label>
                 </div>
-                <div class="form-grid">
-                    <label class="field field-full">
-                        <span>Fichier document</span>
-                        <input type="file" name="document-file" accept=".pdf,.jpg,.jpeg,.png" aria-label="Télécharger un document">
-                    </label>
+
+                <div class="vehicle-section-heading"><span>Attestation d'assurance</span></div>
+                <div class="form-grid" data-document-entry="attestation-assurance">
+                    <label class="field"><span>Numéro de l'attestation</span><input type="text" name="assurance-numero"></label>
+                    <label class="field"><span>Date d'émission</span><input type="date" name="assurance-emission"></label>
+                    <label class="field"><span>Date d'expiration</span><input type="date" name="assurance-expiration"></label>
+                    <label class="field"><span>Organisme émetteur</span><input type="text" name="assurance-organisme"></label>
+                    <label class="field field-full"><span>Pièce jointe de l'attestation</span><input type="file" name="assurance-fichier"></label>
+                </div>
+
+                <div class="vehicle-section-heading" data-transport-document-heading hidden><span>Autorisation de transport</span></div>
+                <div class="form-grid" data-document-entry="autorisation-transport" hidden>
+                    <label class="field"><span>Numéro de l'autorisation</span><input type="text" name="transport-numero"></label>
+                    <label class="field"><span>Date d'émission</span><input type="date" name="transport-emission"></label>
+                    <label class="field"><span>Organisme émetteur</span><input type="text" name="transport-organisme"></label>
+                    <label class="field field-full"><span>Pièce jointe de l'autorisation</span><input type="file" name="transport-fichier"></label>
                 </div>
 
                 <div class="options-box">
